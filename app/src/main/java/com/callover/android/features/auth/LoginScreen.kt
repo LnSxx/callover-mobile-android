@@ -1,4 +1,4 @@
-package com.callover.android.features
+package com.callover.android.features.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,9 +36,9 @@ import com.callover.android.ui.components.CalloverTopBar
 import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
-fun RegisterScreen(
-    onRegisterClick: (username: String, password: String) -> Unit,
-    onOpenLoginClick: () -> Unit
+fun LoginScreen(
+    onLoginClick: (username: String, password: String) -> Unit,
+    onOpenRegisterClick: () -> Unit
 ) {
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -63,14 +63,14 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = stringResource(R.string.register_title),
+                text = stringResource(R.string.sign_in_title),
                 style = MaterialTheme.typography.headlineLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(R.string.register_subtitle),
+                text = stringResource(R.string.sign_in_subtitle),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -102,15 +102,12 @@ fun RegisterScreen(
 
             Button(
                 onClick = {
-                    onRegisterClick(
-                        username.trim(),
-                        password
-                    )
+                    onLoginClick(username.trim(), password)
                 },
                 enabled = canSubmit,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.register_button))
+                Text(stringResource(R.string.sign_in_button))
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -121,17 +118,17 @@ fun RegisterScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.already_have_an_account),
+                    text = stringResource(R.string.dont_have_an_account),
                     style = MaterialTheme.typography.bodyMedium,
                 )
 
                 Spacer(modifier = Modifier.width(4.dp))
 
                 TextButton(
-                    onClick = onOpenLoginClick,
+                    onClick = onOpenRegisterClick,
                 ) {
                     Text(
-                        text = stringResource(R.string.sign_in),
+                        text = stringResource(R.string.create_one),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -141,16 +138,16 @@ fun RegisterScreen(
 }
 
 @Preview(
-    name = "Register screen",
+    name = "Sign in screen",
     showBackground = true,
     device = "spec:width=411dp,height=891dp"
 )
 @Composable
-private fun RegisterScreenPreview() {
+private fun LoginScreenPreview() {
     CalloverMobileTheme {
-        RegisterScreen(
-            onRegisterClick = { _, _ -> },
-            onOpenLoginClick = {}
+        LoginScreen(
+            onLoginClick = { _, _ -> },
+            onOpenRegisterClick = {}
         )
     }
 }

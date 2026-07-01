@@ -5,18 +5,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import com.callover.android.features.LoginScreen
-import com.callover.android.features.RegisterScreen
+import com.callover.android.features.auth.LoginScreen
+import com.callover.android.features.auth.RegisterScreen
+import com.callover.android.features.main.MainScreen
 
 private enum class AuthScreen {
     Login,
-    Register
+    Register,
+    Main,
 }
 
 @Composable
 fun CalloverApp() {
     var currentScreen by rememberSaveable {
-        mutableStateOf(AuthScreen.Login)
+        mutableStateOf(AuthScreen.Main)
     }
 
     when (currentScreen) {
@@ -40,6 +42,10 @@ fun CalloverApp() {
                     currentScreen = AuthScreen.Login
                 },
             )
+        }
+
+        AuthScreen.Main -> {
+            MainScreen()
         }
     }
 }
