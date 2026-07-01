@@ -4,7 +4,7 @@
     <string name="sign_in_title">Sign in to Callover</string>
     <string name="sign_in_subtitle">Sign in to your account</string>
     <string name="username_label">Username</string>
-    <string name="password_label">Username</string>
+    <string name="password_label">Password</string>
     <string name="sign_in_button">Sign in</string>
     <string name="dont_have_an_account">Don\'t have an account?</string>
     <string name="create_one">Create one</string>

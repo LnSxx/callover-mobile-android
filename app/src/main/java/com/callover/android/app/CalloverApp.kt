@@ -1,8 +1,10 @@
 package com.callover.android.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.callover.android.features.LoginScreen
 import com.callover.android.features.RegisterScreen
 
@@ -13,17 +15,19 @@ private enum class AuthScreen {
 
 @Composable
 fun CalloverApp() {
-    val currentScreen = remember { mutableStateOf(AuthScreen.Login) }
+    var currentScreen by rememberSaveable {
+        mutableStateOf(AuthScreen.Login)
+    }
 
-    when (currentScreen.value) {
+    when (currentScreen) {
         AuthScreen.Login -> {
             LoginScreen(
                 onLoginClick = { username, password ->
                     println("Login: $username / $password")
                 },
                 onOpenRegisterClick = {
-                    currentScreen.value = AuthScreen.Register
-                }
+                    currentScreen = AuthScreen.Register
+                },
             )
         }
 
@@ -33,8 +37,8 @@ fun CalloverApp() {
                     println("Register: $username / $password")
                 },
                 onOpenLoginClick = {
-                    currentScreen.value = AuthScreen.Login
-                }
+                    currentScreen = AuthScreen.Login
+                },
             )
         }
     }
