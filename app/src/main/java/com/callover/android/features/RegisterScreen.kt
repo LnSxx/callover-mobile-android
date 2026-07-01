@@ -2,6 +2,7 @@ package com.callover.android.features
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,9 +21,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.callover.android.R
+import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
 fun RegisterScreen(
@@ -42,14 +47,14 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Create account",
+            text = stringResource(R.string.register_title),
             style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Start using Callover",
+            text = stringResource(R.string.register_subtitle),
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -59,7 +64,7 @@ fun RegisterScreen(
             value = username,
             onValueChange = { username = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username_label)) },
             singleLine = true
         )
 
@@ -69,7 +74,7 @@ fun RegisterScreen(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password_label)) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
@@ -89,15 +94,34 @@ fun RegisterScreen(
             enabled = canSubmit,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create account")
+            Text(stringResource(R.string.register_button))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(
-            onClick = onOpenLoginClick
-        ) {
-            Text("Already have an account")
+        Row {
+            Text(stringResource(R.string.already_have_an_account))
+
+            TextButton(
+                onClick = onOpenLoginClick
+            ) {
+                Text(stringResource(R.string.sign_in))
+            }
         }
+    }
+}
+
+@Preview(
+    name = "Register screen",
+    showBackground = true,
+    device = "spec:width=411dp,height=891dp"
+)
+@Composable
+private fun RegisterScreenPreview() {
+    CalloverMobileTheme {
+        RegisterScreen(
+            onRegisterClick = { _, _ -> },
+            onOpenLoginClick = {}
+        )
     }
 }

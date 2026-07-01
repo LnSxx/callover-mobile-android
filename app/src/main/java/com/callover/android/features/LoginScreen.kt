@@ -2,6 +2,7 @@ package com.callover.android.features
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,9 +21,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.callover.android.R
+import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
 fun LoginScreen(
@@ -42,14 +47,14 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Callover",
+            text = stringResource(R.string.sign_in_title),
             style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Sign in to your account",
+            text = stringResource(R.string.sign_in_subtitle),
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -59,7 +64,7 @@ fun LoginScreen(
             value = username,
             onValueChange = { username = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username_label)) },
             singleLine = true
         )
 
@@ -69,7 +74,7 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password_label)) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
@@ -86,15 +91,33 @@ fun LoginScreen(
             enabled = canSubmit,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Log in")
+            Text(stringResource(R.string.sign_in_button))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(
-            onClick = onOpenRegisterClick
-        ) {
-            Text("Create account")
+        Row {
+            Text(stringResource(R.string.dont_have_an_account))
+            TextButton(
+                onClick = onOpenRegisterClick
+            ) {
+                Text(stringResource(R.string.create_one))
+            }
         }
+    }
+}
+
+@Preview(
+    name = "Sign in screen",
+    showBackground = true,
+    device = "spec:width=411dp,height=891dp"
+)
+@Composable
+private fun LoginScreenPreview() {
+    CalloverMobileTheme {
+        LoginScreen(
+            onLoginClick = { _, _ -> },
+            onOpenRegisterClick = {}
+        )
     }
 }
