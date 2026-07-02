@@ -1,6 +1,7 @@
 package com.callover.android.core.network
 
 import com.callover.android.core.data.auth.AuthApi
+import com.callover.android.core.data.profile.ProfileApi
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -61,5 +62,13 @@ object NetworkModule {
         retrofit: Retrofit,
     ): AuthApi {
         return retrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileApi(
+        retrofit: Retrofit,
+    ): ProfileApi {
+        return retrofit.create(ProfileApi::class.java)
     }
 }

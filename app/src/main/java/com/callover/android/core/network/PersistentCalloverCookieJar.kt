@@ -44,17 +44,17 @@ class PersistentCalloverCookieJar @Inject constructor(
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        val validCookies = cookies.filter { cookie ->
-            cookie.matches(url) && !cookieHasExpired(cookie)
+        val removedExpired = cookies.removeAll { cookie ->
+            cookieHasExpired(cookie)
         }
-
-        val removedExpired = cookies.removeAll { cookieHasExpired(it) }
 
         if (removedExpired) {
             persistCookies()
         }
 
-        return validCookies
+        return cookies.filter { cookie ->
+            cookie.matches(url) && !cookieHasExpired(cookie)
+        }
     }
 
     fun clear() {
