@@ -27,5 +27,11 @@ fun ApiError.toRegisterUiState(): RegisterUiState {
                 generalError = "Something went wrong.",
             )
         }
+
+        ApiError.Unauthorized -> {
+            RegisterUiState(
+                generalError = "Something went wrong.",
+            )
+        }
     }
 }

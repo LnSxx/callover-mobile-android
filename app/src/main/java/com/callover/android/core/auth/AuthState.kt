@@ -10,5 +10,6 @@ sealed interface AuthState {
 
     data class Authenticated(
         val user: User,
+        val isOffline: Boolean = false,
     ) : AuthState
 }

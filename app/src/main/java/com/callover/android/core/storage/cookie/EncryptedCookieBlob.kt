@@ -1,4 +1,4 @@
-package com.callover.android.core.storage
+package com.callover.android.core.storage.cookie
 
 import kotlinx.serialization.Serializable
 

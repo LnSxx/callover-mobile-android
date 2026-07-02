@@ -1,6 +1,6 @@
 package com.callover.android.core.network
 
-import com.callover.android.core.storage.CookieStorage
+import com.callover.android.core.storage.cookie.CookieStorage
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl

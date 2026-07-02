@@ -8,6 +8,8 @@ sealed interface ApiError {
         val fieldErrors: List<ApiFieldError> = emptyList(),
     ) : ApiError
 
+    data object Unauthorized : ApiError
+
     data object Network : ApiError
 
     data object Unknown : ApiError

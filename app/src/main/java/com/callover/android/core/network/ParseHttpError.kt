@@ -8,6 +8,10 @@ fun parseHttpError(
     json: Json,
     error: HttpException,
 ): ApiError {
+    if (error.code() == 401) {
+        return ApiError.Unauthorized
+    }
+
     val rawBody = error.response()?.errorBody()?.string()
 
     if (rawBody.isNullOrBlank()) {

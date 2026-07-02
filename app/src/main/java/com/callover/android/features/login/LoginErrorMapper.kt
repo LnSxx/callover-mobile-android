@@ -27,5 +27,11 @@ fun ApiError.toLoginUiState(): LoginUiState {
                 generalError = "Something went wrong.",
             )
         }
+
+        ApiError.Unauthorized -> {
+            LoginUiState(
+                generalError = "Invalid username or password.",
+            )
+        }
     }
 }
