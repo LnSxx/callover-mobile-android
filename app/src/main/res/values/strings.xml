@@ -19,4 +19,8 @@
     <string name="contacts_title">Contacts</string>
     <string name="notifications_title">Notifications</string>
     <string name="settings_title">Settings</string>
+
+    <string name="your_profile_id">Your Profile ID</string>
+    <string name="share">Share</string>
+    <string name="copy">Copy</string>
 </resources>
