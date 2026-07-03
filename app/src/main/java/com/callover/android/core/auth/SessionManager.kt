@@ -1,6 +1,7 @@
 package com.callover.android.core.auth
 
 import com.callover.android.core.data.auth.AuthRepository
+import com.callover.android.core.data.notifications.NotificationsRepository
 import com.callover.android.core.data.profile.ProfileRepository
 import com.callover.android.core.domain.models.User
 import com.callover.android.core.network.ApiError
@@ -19,6 +20,7 @@ class SessionManager @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val cookieJar: PersistentCalloverCookieJar,
     private val userStorage: UserStorage,
+    private val notificationsRepository: NotificationsRepository
 ) {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -71,7 +73,7 @@ class SessionManager @Inject constructor(
         clearLocalSession()
     }
 
-    fun forceLogout() {
+    suspend fun forceLogout() {
         clearLocalSession()
     }
 
@@ -96,9 +98,10 @@ class SessionManager @Inject constructor(
         }
     }
 
-    private fun clearLocalSession() {
+    private suspend fun clearLocalSession() {
         cookieJar.clear()
         userStorage.clearUser()
+        notificationsRepository.clearLocalNotifications()
         _authState.value = AuthState.Unauthenticated
     }
 }
