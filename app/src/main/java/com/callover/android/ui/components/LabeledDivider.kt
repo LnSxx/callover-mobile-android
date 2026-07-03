@@ -31,7 +31,6 @@ fun LabeledDivider(
         Text(
             text = text,
             modifier = Modifier
-                .padding(horizontal = 12.dp)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant,

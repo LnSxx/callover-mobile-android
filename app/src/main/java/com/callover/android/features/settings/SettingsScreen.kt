@@ -10,15 +10,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callover.android.R
 import com.callover.android.features.settings.components.ProfileInfo
+import com.callover.android.features.settings.components.SettingsActions
+import com.callover.android.ui.components.ApplicationInfo
+import com.callover.android.ui.components.LabeledDivider
 
 @Composable
 fun SettingsScreen(
@@ -30,13 +37,21 @@ fun SettingsScreen(
     SettingsScreenContent(
         modifier = modifier,
         uiState = uiState,
+        onChangePasswordClick = {  },
+        onLogoutClick = viewModel::logout,
+        onDeleteAccountClick = {
+            // TODO: Delete account flow
+        },
     )
 }
 
 @Composable
 private fun SettingsScreenContent(
-    modifier: Modifier = Modifier,
     uiState: SettingsUiState,
+    onChangePasswordClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onDeleteAccountClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -54,6 +69,14 @@ private fun SettingsScreenContent(
                 CircularProgressIndicator()
             }
 
+            uiState.userId.isBlank() -> {
+                Text(
+                    text = "User information is unavailable.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             else -> {
                 ProfileInfo(
                     username = uiState.username,
@@ -61,6 +84,32 @@ private fun SettingsScreenContent(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        LabeledDivider(
+            text = stringResource(R.string.account)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        SettingsActions(
+            onChangePasswordClick = onChangePasswordClick,
+            onLogoutClick = onLogoutClick,
+            onDeleteAccountClick = onDeleteAccountClick,
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        LabeledDivider(
+            text = stringResource(R.string.application)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        ApplicationInfo()
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -78,22 +127,8 @@ fun SettingsScreenPreview() {
             userId = "dpad2-f23-ff2f2f-24ffi-fbdfb",
             isLoading = false,
         ),
-    )
-}
-
-@Preview(
-    name = "Settings Screen Preview Unavailable",
-    showBackground = true,
-    device = "spec:width=411dp,height=691dp",
-)
-@Composable
-fun SettingsScreenUnavailablePreview() {
-    SettingsScreenContent(
-        modifier = Modifier.fillMaxSize(),
-        uiState = SettingsUiState(
-            username = "",
-            userId = "",
-            isLoading = true,
-        ),
+        onChangePasswordClick = {},
+        onLogoutClick = {},
+        onDeleteAccountClick = {},
     )
 }

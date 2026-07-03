@@ -20,7 +20,12 @@
     <string name="notifications_title">Notifications</string>
     <string name="settings_title">Settings</string>
 
-    <string name="your_profile_id">Your Profile ID</string>
+    <string name="your_profile_id">Your Account ID</string>
     <string name="share">Share</string>
     <string name="copy">Copy</string>
+    <string name="account">Account</string>
+    <string name="change_password_button">Change Password</string>
+    <string name="log_out_button">Log out</string>
+    <string name="delete_account_button">Delete Account</string>
+    <string name="application">Application</string>
 </resources>
