@@ -2,6 +2,8 @@ package com.callover.android.core.di
 
 import com.callover.android.core.data.auth.AuthRepository
 import com.callover.android.core.data.auth.AuthRepositoryImpl
+import com.callover.android.core.data.contacts.ContactsRepository
+import com.callover.android.core.data.contacts.ContactsRepositoryImpl
 import com.callover.android.core.data.notifications.NotificationsRepository
 import com.callover.android.core.data.notifications.NotificationsRepositoryImpl
 import com.callover.android.core.data.profile.ProfileRepository
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindNotificationsRepository(
         implementation: NotificationsRepositoryImpl,
     ): NotificationsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindContactsRepository(
+        implementation: ContactsRepositoryImpl,
+    ): ContactsRepository
 }

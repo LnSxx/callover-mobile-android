@@ -1,6 +1,7 @@
 package com.callover.android.core.network
 
 import com.callover.android.core.data.auth.AuthApi
+import com.callover.android.core.data.contacts.ContactsApi
 import com.callover.android.core.data.notifications.NotificationsApi
 import com.callover.android.core.data.profile.ProfileApi
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -79,5 +80,13 @@ object NetworkModule {
         retrofit: Retrofit,
     ): NotificationsApi {
         return retrofit.create(NotificationsApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideContactsApi(
+        retrofit: Retrofit,
+    ): ContactsApi {
+        return retrofit.create(ContactsApi::class.java)
     }
 }

@@ -1,6 +1,7 @@
 package com.callover.android.core.auth
 
 import com.callover.android.core.data.auth.AuthRepository
+import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.data.notifications.NotificationsRepository
 import com.callover.android.core.data.profile.ProfileRepository
 import com.callover.android.core.domain.models.User
@@ -20,7 +21,8 @@ class SessionManager @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val cookieJar: PersistentCalloverCookieJar,
     private val userStorage: UserStorage,
-    private val notificationsRepository: NotificationsRepository
+    private val notificationsRepository: NotificationsRepository,
+    private val contactsRepository: ContactsRepository
 ) {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -102,6 +104,7 @@ class SessionManager @Inject constructor(
         cookieJar.clear()
         userStorage.clearUser()
         notificationsRepository.clearLocalNotifications()
+        contactsRepository.clearLocalContacts()
         _authState.value = AuthState.Unauthenticated
     }
 }
