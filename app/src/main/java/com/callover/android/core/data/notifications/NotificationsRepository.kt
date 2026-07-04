@@ -11,7 +11,9 @@ interface NotificationsRepository {
 
     fun observeUnreadCount(): Flow<Int>
 
-    suspend fun syncNotifications(): ApiResult<Unit>
+    suspend fun refreshNotifications(): ApiResult<Unit>
+
+    suspend fun loadNextNotificationsPage(): ApiResult<Unit>
 
     suspend fun markAsRead(
         ids: List<String>,

@@ -1,5 +1,6 @@
 package com.callover.android.core.data.notifications
 
+import com.callover.android.core.data.notifications.dto.MarkNotificationsAsReadRequestDto
 import com.callover.android.core.database.dao.NotificationsDao
 import com.callover.android.core.domain.models.Notification
 import com.callover.android.core.network.ApiResult
@@ -17,6 +18,9 @@ class NotificationsRepositoryImpl @Inject constructor(
     private val dao: NotificationsDao,
     private val json: Json,
 ) : NotificationsRepository {
+    private var nextOffset: Int? = 0
+    private val pageLimit = 30
+
     override fun observeNotifications(
         includeArchived: Boolean,
     ): Flow<List<Notification>> {
@@ -29,7 +33,9 @@ class NotificationsRepositoryImpl @Inject constructor(
         }
 
         return source.map { entities ->
-            entities.map { it.toDomain(nowMillis) }
+            entities.map { entity ->
+                entity.toDomain(nowMillis)
+            }
         }
     }
 
@@ -39,30 +45,22 @@ class NotificationsRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun syncNotifications(): ApiResult<Unit> {
-        return safeApiCall(json) {
-            var offset = 0
-            val limit = 100
+    override suspend fun refreshNotifications(): ApiResult<Unit> {
+        nextOffset = 0
 
-            do {
-                val response = api.getNotifications(
-                    limit = limit,
-                    offset = offset,
-                    status = null,
-                )
+        return loadPage(
+            offset = 0,
+            replacePagingState = true,
+        )
+    }
 
-                dao.upsertAll(
-                    response.data.map { dto ->
-                        dto.toEntity(json)
-                    },
-                )
+    override suspend fun loadNextNotificationsPage(): ApiResult<Unit> {
+        val offset = nextOffset ?: return ApiResult.Success(Unit)
 
-                offset += response.pagination.count
-            } while (
-                response.pagination.next != null &&
-                response.pagination.count > 0
-            )
-        }
+        return loadPage(
+            offset = offset,
+            replacePagingState = true,
+        )
     }
 
     override suspend fun markAsRead(
@@ -80,16 +78,15 @@ class NotificationsRepositoryImpl @Inject constructor(
             pendingReadSync = true,
         )
 
-        val result = safeApiCall(json) {
+        return safeApiCall(json) {
             api.markAsRead(
-                body = com.callover.android.core.data.notifications.dto.MarkNotificationsAsReadRequestDto(
+                body = MarkNotificationsAsReadRequestDto(
                     notificationIds = ids,
                 ),
             )
+
             dao.clearPendingReadSync(ids)
         }
-
-        return result
     }
 
     override suspend fun syncPendingReadMarks(): ApiResult<Unit> {
@@ -101,15 +98,44 @@ class NotificationsRepositoryImpl @Inject constructor(
 
         return safeApiCall(json) {
             api.markAsRead(
-                body = com.callover.android.core.data.notifications.dto.MarkNotificationsAsReadRequestDto(
+                body = MarkNotificationsAsReadRequestDto(
                     notificationIds = ids,
                 ),
             )
+
             dao.clearPendingReadSync(ids)
         }
     }
 
     override suspend fun clearLocalNotifications() {
         dao.clearAll()
+        nextOffset = 0
+    }
+
+    private suspend fun loadPage(
+        offset: Int,
+        replacePagingState: Boolean,
+    ): ApiResult<Unit> {
+        return safeApiCall(json) {
+            val response = api.getNotifications(
+                limit = pageLimit,
+                offset = offset,
+                status = null,
+            )
+
+            dao.upsertAll(
+                notifications = response.data.map { dto ->
+                    dto.toEntity(json)
+                },
+            )
+
+            if (replacePagingState) {
+                nextOffset = if (response.pagination.next != null) {
+                    response.pagination.offset + response.pagination.count
+                } else {
+                    null
+                }
+            }
+        }
     }
 }

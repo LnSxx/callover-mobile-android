@@ -1,8 +1,9 @@
 package com.callover.android.core.data.notifications.dto
 
-import kotlinx.serialization.Serializer
+import kotlinx.serialization.Serializable
 
-@Serializer
+
+@Serializable
 data class MarkNotificationsAsReadRequestDto(
     val notificationIds: List<String>,
 )
