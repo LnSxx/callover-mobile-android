@@ -9,6 +9,7 @@ import com.callover.android.core.network.ApiError
 import com.callover.android.core.network.ApiResult
 import com.callover.android.core.network.PersistentCalloverCookieJar
 import com.callover.android.core.storage.user.UserStorage
+import com.callover.android.core.sync.SessionDataSyncManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,8 @@ class SessionManager @Inject constructor(
     private val cookieJar: PersistentCalloverCookieJar,
     private val userStorage: UserStorage,
     private val notificationsRepository: NotificationsRepository,
-    private val contactsRepository: ContactsRepository
+    private val contactsRepository: ContactsRepository,
+    private val sessionDataSyncManager: SessionDataSyncManager,
 ) {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -81,16 +83,20 @@ class SessionManager @Inject constructor(
 
     private fun saveAuthenticatedUser(user: User) {
         userStorage.saveUser(user)
+
         _authState.value = AuthState.Authenticated(
             user = user,
             isOffline = false,
         )
+
+        sessionDataSyncManager.start()
     }
 
     private fun restoreCachedUserOrUnauthenticated() {
         val cachedUser = userStorage.loadUser()
 
         _authState.value = if (cachedUser != null) {
+            sessionDataSyncManager.start()
             AuthState.Authenticated(
                 user = cachedUser,
                 isOffline = true,
@@ -101,10 +107,13 @@ class SessionManager @Inject constructor(
     }
 
     private suspend fun clearLocalSession() {
+        sessionDataSyncManager.stop()
+
         cookieJar.clear()
         userStorage.clearUser()
-        notificationsRepository.clearLocalNotifications()
         contactsRepository.clearLocalContacts()
+        notificationsRepository.clearLocalNotifications()
+
         _authState.value = AuthState.Unauthenticated
     }
 }

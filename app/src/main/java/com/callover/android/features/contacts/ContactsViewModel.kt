@@ -27,12 +27,13 @@ class ContactsViewModel @Inject constructor(
 
     val uiState = combine(
         contactsRepository.observeContacts(),
+        contactsRepository.observeIsSyncing(),
         screenState,
-    ) { contacts, screenState ->
+    ) { contacts, isSyncing, screenState ->
         ContactsUiState(
             contacts = contacts,
-            isSyncing = screenState.isSyncing,
-            hasLoaded = screenState.hasLoaded,
+            isSyncing = isSyncing,
+            hasLoaded = true,
             errorMessage = screenState.errorMessage,
         )
     }.stateIn(
@@ -45,10 +46,6 @@ class ContactsViewModel @Inject constructor(
             errorMessage = null,
         ),
     )
-
-    init {
-        syncContacts()
-    }
 
     fun syncContacts() {
         viewModelScope.launch {
