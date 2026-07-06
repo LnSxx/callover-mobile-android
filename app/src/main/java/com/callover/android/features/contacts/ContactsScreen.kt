@@ -89,7 +89,7 @@ private fun ContactsScreenContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(88.dp))
 
 //        uiState.errorMessage?.let { errorMessage ->
 //            Snackbar(
