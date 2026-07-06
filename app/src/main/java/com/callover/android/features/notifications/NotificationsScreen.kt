@@ -2,21 +2,17 @@ package com.callover.android.features.notifications
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,14 +21,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callover.android.R
 import com.callover.android.core.domain.models.Notification
 import com.callover.android.core.domain.models.NotificationStatus
 import com.callover.android.core.domain.models.NotificationType
-import com.callover.android.features.notifications.components.NotificationListItem
+import com.callover.android.features.notifications.componenets.EmptyNotificationList
+import com.callover.android.features.notifications.componenets.NotificationsListContent
 
 @Composable
 fun NotificationsScreen(
@@ -73,7 +72,12 @@ private fun NotificationsScreenContent(
 
             val totalItems = listState.layoutInfo.totalItemsCount
 
-            totalItems > 0 && lastVisibleItem.index >= totalItems - 4
+            uiState.hasLoaded &&
+                    uiState.notifications.isNotEmpty() &&
+                    !uiState.isRefreshing &&
+                    !uiState.isLoadingNextPage &&
+                    totalItems > 0 &&
+                    lastVisibleItem.index >= totalItems - 1
         }
     }
 
@@ -83,95 +87,82 @@ private fun NotificationsScreenContent(
         }
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding(),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.Start,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            start = 24.dp,
+            end = 24.dp,
+            top = 24.dp,
+            bottom = 24.dp,
+        ),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .imePadding(),
+        item(
+            key = "header",
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.notifications_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                )
 
-            FilterChip(
-                selected = uiState.includeArchived,
-                onClick = {
-                    onIncludeArchivedChange(!uiState.includeArchived)
-                },
-                label = {
-                    Text("Show archived notifications")
-                },
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            when {
-                uiState.isRefreshing && uiState.notifications.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                uiState.notifications.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "No notifications yet.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        state = listState,
-                        contentPadding = PaddingValues(bottom = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(
-                            items = uiState.notifications,
-                            key = { notification -> notification.id },
-                        ) { notification ->
-                            NotificationListItem(
-                                notification = notification,
-                                onClick = {
-                                    onNotificationClick(notification)
-                                },
-                            )
-                        }
-
-                        if (uiState.isLoadingNextPage) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-                    }
+                if (uiState.isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
                 }
             }
         }
 
-        uiState.errorMessage?.let { errorMessage ->
-            Snackbar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp),
+        item(
+            key = "top-space",
+        ) {
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        when {
+            !uiState.hasLoaded -> {
+                // render nothing
+            }
+
+            uiState.notifications.isEmpty() -> {
+                item(
+                    key = "empty-notifications",
+                ) {
+                    EmptyNotificationList()
+                }
+            }
+
+            else -> {
+                NotificationsListContent(
+                    notifications = uiState.notifications,
+                    onNotificationClick = onNotificationClick,
+                )
+            }
+        }
+
+        if (uiState.isLoadingNextPage) {
+            item(
+                key = "next-page-loader",
             ) {
-                Text(errorMessage)
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
             }
         }
     }

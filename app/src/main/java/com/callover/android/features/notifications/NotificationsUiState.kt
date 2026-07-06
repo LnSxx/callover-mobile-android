@@ -8,5 +8,6 @@ data class NotificationsUiState(
     val includeArchived: Boolean = false,
     val isRefreshing: Boolean = false,
     val isLoadingNextPage: Boolean = false,
+    val hasLoaded: Boolean = false,
     val errorMessage: String? = null,
 )

@@ -6,6 +6,7 @@ import com.callover.android.core.data.notifications.NotificationsRepository
 import com.callover.android.core.network.ApiError
 import com.callover.android.core.network.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -22,6 +23,7 @@ class NotificationsViewModel @Inject constructor(
     private val includeArchived = MutableStateFlow(false)
     private val screenState = MutableStateFlow(NotificationsScreenState())
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState = combine(
         includeArchived.flatMapLatest { includeArchived ->
             notificationsRepository.observeNotifications(includeArchived)
@@ -36,12 +38,21 @@ class NotificationsViewModel @Inject constructor(
             includeArchived = includeArchived,
             isRefreshing = screenState.isRefreshing,
             isLoadingNextPage = screenState.isLoadingNextPage,
+            hasLoaded = screenState.hasLoaded,
             errorMessage = screenState.errorMessage,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = NotificationsUiState(),
+        initialValue = NotificationsUiState(
+            notifications = emptyList(),
+            unreadCount = 0,
+            includeArchived = false,
+            isRefreshing = true,
+            isLoadingNextPage = false,
+            hasLoaded = false,
+            errorMessage = null,
+        ),
     )
 
     init {
@@ -64,6 +75,7 @@ class NotificationsViewModel @Inject constructor(
             screenState.update {
                 it.copy(
                     isRefreshing = false,
+                    hasLoaded = true,
                     errorMessage = result.errorMessageOrNull(),
                 )
             }
@@ -114,12 +126,6 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 }
-
-private data class NotificationsScreenState(
-    val isRefreshing: Boolean = false,
-    val isLoadingNextPage: Boolean = false,
-    val errorMessage: String? = null,
-)
 
 private fun ApiResult<Unit>.errorMessageOrNull(): String? {
     return when (this) {

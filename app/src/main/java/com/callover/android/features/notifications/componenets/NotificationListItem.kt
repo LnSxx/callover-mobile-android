@@ -1,4 +1,4 @@
-package com.callover.android.features.notifications.components
+package com.callover.android.features.notifications.componenets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

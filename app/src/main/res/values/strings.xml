@@ -31,4 +31,9 @@
 
     <string name="empty_contact_list_description">No contacts yet.\nTap the button below to add your first contact. You\'ll need their Account ID.</string>
     <string name="online">Online</string>
+
+    <string name="empty_notification_list_description">No notifications yet.\nNotifications older than 30 days are removed from the server.</string>
+    <string name="notification_group_today">Today</string>
+    <string name="notification_group_yesterday">Yesterday</string>
+    <string name="notification_group_unknown_date">Unknown date</string>
 </resources>
