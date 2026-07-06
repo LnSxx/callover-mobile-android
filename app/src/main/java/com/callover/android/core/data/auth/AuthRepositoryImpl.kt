@@ -25,7 +25,7 @@ class AuthRepositoryImpl @Inject constructor(
                     username = username,
                     password = password,
                 )
-            ).toDomain()
+            ).user.toDomain()
         }
     }
 
@@ -39,7 +39,7 @@ class AuthRepositoryImpl @Inject constructor(
                     username = username,
                     password = password,
                 )
-            ).toDomain()
+            ).user.toDomain()
         }
     }
 
