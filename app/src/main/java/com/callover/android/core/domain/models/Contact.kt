@@ -4,7 +4,7 @@ data class Contact(
     val id: String,
     val ownerId: String,
     val contactUserId: String,
-    val alias: String?,
+    val alias: String,
     val note: String?,
     val isFavourite: Boolean,
     val isBlocked: Boolean,

@@ -28,4 +28,7 @@
     <string name="log_out_button">Log out</string>
     <string name="delete_account_button">Delete Account</string>
     <string name="application">Application</string>
+
+    <string name="empty_contact_list_description">No contacts yet.\nTap the button below to add your first contact. You\'ll need their Account ID.</string>
+    <string name="online">Online</string>
 </resources>

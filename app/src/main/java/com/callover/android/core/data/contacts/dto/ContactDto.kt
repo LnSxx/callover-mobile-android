@@ -7,7 +7,7 @@ data class ContactDto(
     val id: String,
     val ownerId: String,
     val contactUserId: String,
-    val alias: String? = null,
+    val alias: String,
     val note: String? = null,
     val isFavourite: Boolean,
     val isBlocked: Boolean,

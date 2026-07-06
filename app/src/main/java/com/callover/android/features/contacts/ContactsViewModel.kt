@@ -18,7 +18,12 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
 ) : ViewModel() {
-    private val screenState = MutableStateFlow(ContactsScreenState())
+    private val screenState = MutableStateFlow(
+        ContactsScreenState(
+            isSyncing = true,
+            hasLoaded = false,
+        )
+    )
 
     val uiState = combine(
         contactsRepository.observeContacts(),
@@ -27,12 +32,18 @@ class ContactsViewModel @Inject constructor(
         ContactsUiState(
             contacts = contacts,
             isSyncing = screenState.isSyncing,
+            hasLoaded = screenState.hasLoaded,
             errorMessage = screenState.errorMessage,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = ContactsUiState(),
+        initialValue = ContactsUiState(
+            contacts = emptyList(),
+            isSyncing = true,
+            hasLoaded = false,
+            errorMessage = null,
+        ),
     )
 
     init {
@@ -53,17 +64,13 @@ class ContactsViewModel @Inject constructor(
             screenState.update {
                 it.copy(
                     isSyncing = false,
+                    hasLoaded = true,
                     errorMessage = result.errorMessageOrNull(),
                 )
             }
         }
     }
 }
-
-private data class ContactsScreenState(
-    val isSyncing: Boolean = false,
-    val errorMessage: String? = null,
-)
 
 private fun ApiResult<Unit>.errorMessageOrNull(): String? {
     return when (this) {
