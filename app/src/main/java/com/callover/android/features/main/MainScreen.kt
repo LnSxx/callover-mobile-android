@@ -16,6 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.callover.android.R
 import com.callover.android.features.contacts.ContactsScreen
 import com.callover.android.features.home.HomeScreen
@@ -28,12 +34,23 @@ import com.callover.android.ui.components.CalloverTopBar
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
 ) {
+    val navController = rememberNavController()
+
     val unreadNotificationsCount by viewModel
         .unreadNotificationsCount
         .collectAsStateWithLifecycle()
 
-    var selectedDestination by rememberSaveable {
-        mutableStateOf(MainScreenDestination.Home)
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+
+    val selectedDestination = MainScreenDestination.entries
+        .firstOrNull { destination ->
+            currentDestination.isCurrentDestination(destination.route)
+        }
+        ?: MainScreenDestination.Home
+
+    val shouldShowBottomBar = MainScreenDestination.entries.any { destination ->
+        currentDestination.isCurrentDestination(destination.route)
     }
 
     Scaffold(
@@ -41,32 +58,54 @@ fun MainScreen(
             CalloverTopBar(titleRes = R.string.app_name)
         },
         bottomBar = {
-            CalloverBottomNavigationBar(
-                unreadNotificationsCount = unreadNotificationsCount,
-                selectedDestination = selectedDestination,
-                onDestinationClick = { selectedDestination = it },
-            )
-        },
-        floatingActionButton = {
-            if (selectedDestination == MainScreenDestination.Contacts) {
-                FloatingActionButton(
-                    onClick = {
-                        // TODO: navigate to create contact screen
+            if (shouldShowBottomBar) {
+                CalloverBottomNavigationBar(
+                    unreadNotificationsCount = unreadNotificationsCount,
+                    selectedDestination = selectedDestination,
+                    onDestinationClick = { destination ->
+                        navController.navigate(destination.route) {
+                            popUpTo(MainRoutes.HOME) {
+                                saveState = true
+                            }
+
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.contacts_create_contact),
-                    )
-                }
+                )
             }
         },
     ) { innerPadding ->
-        MainScreenContent(
-            selectedDestination = selectedDestination,
-            innerPadding = innerPadding,
-        )
+        NavHost(
+            navController = navController,
+            startDestination = MainRoutes.HOME,
+            modifier = Modifier.padding(innerPadding),
+        ) {
+            composable(MainRoutes.HOME) {
+                HomeScreen()
+            }
+
+            composable(MainRoutes.CONTACTS) {
+                ContactsScreen()
+            }
+
+            composable(MainRoutes.NOTIFICATIONS) {
+                NotificationsScreen()
+            }
+
+            composable(MainRoutes.SETTINGS) {
+                SettingsScreen()
+            }
+        }
     }
+}
+
+private fun NavDestination?.isCurrentDestination(
+    route: String,
+): Boolean {
+    return this?.hierarchy?.any { destination ->
+        destination.route == route
+    } == true
 }
 
 @Composable
