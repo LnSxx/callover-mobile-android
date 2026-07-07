@@ -1,5 +1,7 @@
 package com.callover.android.core.network
 
+import com.callover.android.BuildConfig
+
 object ApiConfig {
-    const val BASE_URL = "http://192.168.0.145:3000/"
+    val BASE_URL: String = BuildConfig.API_BASE_URL
 }

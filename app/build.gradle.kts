@@ -11,6 +11,30 @@ android {
     namespace = "com.callover.android"
     compileSdk = 36
 
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("local") {
+            dimension = "environment"
+
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"http://192.168.0.145:3000/\"",
+            )
+        }
+
+        create("render") {
+            dimension = "environment"
+
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"https://callover-server.onrender.com/\"",
+            )
+        }
+    }
+
     defaultConfig {
         applicationId = "com.callover.android"
         minSdk = 30
@@ -52,6 +76,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.navigation.compose)
     kapt(libs.androidx.room.compiler)
 
     implementation(libs.retrofit.core)
