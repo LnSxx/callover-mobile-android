@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,14 +24,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
 import com.callover.android.ui.theme.CalloverMobileTheme
+
+private const val MAX_CONTACT_NAME_LENGTH = 80
 
 @Composable
 fun CreateContactScreen(
@@ -102,9 +101,11 @@ fun CreateContactScreenContent(
 
         OutlinedTextField(
             value = name,
-            onValueChange = {
-                name = it
-                onInputChange()
+            onValueChange = { value ->
+                if (value.length <= MAX_CONTACT_NAME_LENGTH) {
+                    name = value
+                    onInputChange()
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(stringResource(R.string.name_label)) },
@@ -141,10 +142,6 @@ fun CreateContactScreenContent(
                     Text(error)
                 }
             },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-            ),
         )
 
         Spacer(modifier = Modifier.height(24.dp))

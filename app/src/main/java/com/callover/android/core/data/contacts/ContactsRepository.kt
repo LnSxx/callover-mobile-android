@@ -11,6 +11,11 @@ interface ContactsRepository {
 
     suspend fun syncContacts(): ApiResult<Unit>
 
+    suspend fun createContact(
+        alias: String,
+        contactUserId: String,
+    ): ApiResult<Contact>
+
     suspend fun deleteContact(
         id: String,
     ): ApiResult<Unit>

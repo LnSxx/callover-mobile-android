@@ -2,6 +2,7 @@ package com.callover.android.features.create_contact
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.network.ApiResult
 import com.callover.android.features.login.LoginUiState
 import com.callover.android.features.login.toLoginUiState
@@ -12,7 +13,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateContactViewModel @Inject constructor() : ViewModel() {
+class CreateContactViewModel @Inject constructor(
+    private val contactsRepository: ContactsRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateContactUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -27,20 +30,20 @@ class CreateContactViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _uiState.value = CreateContactUiState(isLoading = true)
 
-//            when (
-//                val result = sessionManager.login(
-//                    username = username,
-//                    password = password,
-//                )
-//            ) {
-//                is ApiResult.Success -> {
-//                    _uiState.value = LoginUiState()
-//                }
-//
-//                is ApiResult.Error -> {
-//                    _uiState.value = result.error.toLoginUiState()
-//                }
-//            }
+            when (
+                val result = contactsRepository.createContact(
+                    alias = name,
+                    contactUserId = userId,
+                )
+            ) {
+                is ApiResult.Success -> {
+                    _uiState.value = CreateContactUiState()
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.value = result.error.toCreateContactUiState()
+                }
+            }
         }
     }
 

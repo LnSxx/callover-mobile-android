@@ -1,5 +1,6 @@
 package com.callover.android.core.data.contacts
 
+import com.callover.android.core.data.contacts.dto.CreateContactDto
 import com.callover.android.core.database.dao.ContactsDao
 import com.callover.android.core.database.dao.SyncMetadataDao
 import com.callover.android.core.database.entities.SyncMetadataEntity
@@ -99,6 +100,32 @@ class ContactsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun createContact(
+        alias: String,
+        contactUserId: String,
+    ): ApiResult<Contact> {
+        return safeApiCall(json) {
+            val contactDto = api.createContact(
+                body = CreateContactDto(
+                    contactUserId = contactUserId,
+                    alias = alias,
+                ),
+            )
+
+            val entity = contactDto.toEntity()
+
+            contactsDao.upsertAll(
+                contacts = listOf(entity),
+            )
+
+            updateContactsLastRemoteUpdatedAt(
+                updatedAt = contactDto.updatedAt,
+            )
+
+            entity.toDomain()
+        }
+    }
+
     override suspend fun deleteContact(
         id: String,
     ): ApiResult<Unit> {
@@ -122,6 +149,28 @@ class ContactsRepositoryImpl @Inject constructor(
             second == null -> first
             first >= second -> first
             else -> second
+        }
+    }
+
+    private suspend fun updateContactsLastRemoteUpdatedAt(
+        updatedAt: String,
+    ) {
+        val currentValue = syncMetadataDao.getValue(
+            key = CONTACTS_LAST_REMOTE_UPDATED_AT,
+        )
+
+        val nextValue = maxOfNullableIso(
+            first = currentValue,
+            second = updatedAt,
+        )
+
+        nextValue?.let { value ->
+            syncMetadataDao.upsert(
+                SyncMetadataEntity(
+                    key = CONTACTS_LAST_REMOTE_UPDATED_AT,
+                    value = value,
+                ),
+            )
         }
     }
 }
