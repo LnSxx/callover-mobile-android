@@ -29,6 +29,8 @@ import com.callover.android.ui.components.LabeledDivider
 
 @Composable
 fun SettingsScreen(
+    onChangePasswordClick: () -> Unit,
+    onDeleteAccountClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -37,11 +39,9 @@ fun SettingsScreen(
     SettingsScreenContent(
         modifier = modifier,
         uiState = uiState,
-        onChangePasswordClick = {  },
+        onChangePasswordClick = onChangePasswordClick,
         onLogoutClick = viewModel::logout,
-        onDeleteAccountClick = {
-            // TODO: Delete account flow
-        },
+        onDeleteAccountClick = onDeleteAccountClick,
     )
 }
 

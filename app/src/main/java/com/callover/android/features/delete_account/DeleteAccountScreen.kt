@@ -1,4 +1,4 @@
-package com.callover.android.features.create_contact
+package com.callover.android.features.delete_account
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.callover.android.R
 
 @Composable
-fun CreateContactScreen(
+fun DeleteAccountScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -34,7 +34,7 @@ fun CreateContactScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.create_contact_title),
+            text = stringResource(R.string.delete_account_title),
             style = MaterialTheme.typography.headlineLarge,
         )
     }

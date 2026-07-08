@@ -39,4 +39,8 @@
     <string name="notification_group_unknown_date">Unknown date</string>
 
     <string name="create_contact_title">Create a new contact</string>
+
+    <string name="change_password_title">Change Password</string>
+
+    <string name="delete_account_title">Delete Account?</string>
 </resources>

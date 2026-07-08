@@ -1,19 +1,10 @@
 package com.callover.android.features.main
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
@@ -23,7 +14,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.callover.android.R
+import com.callover.android.features.change_password.ChangePasswordScreen
 import com.callover.android.features.contacts.ContactsScreen
+import com.callover.android.features.create_contact.CreateContactScreen
+import com.callover.android.features.delete_account.DeleteAccountScreen
 import com.callover.android.features.home.HomeScreen
 import com.callover.android.features.notifications.NotificationsScreen
 import com.callover.android.features.settings.SettingsScreen
@@ -86,7 +80,14 @@ fun MainScreen(
             }
 
             composable(MainRoutes.CONTACTS) {
-                ContactsScreen()
+                ContactsScreen(
+                    onCreateContactClick = {
+                        navController.navigate(MainRoutes.CONTACTS_CREATE_CONTACT)
+                    },
+                )
+            }
+            composable(MainRoutes.CONTACTS_CREATE_CONTACT) {
+                CreateContactScreen()
             }
 
             composable(MainRoutes.NOTIFICATIONS) {
@@ -94,7 +95,20 @@ fun MainScreen(
             }
 
             composable(MainRoutes.SETTINGS) {
-                SettingsScreen()
+                SettingsScreen(
+                    onChangePasswordClick = {
+                        navController.navigate(MainRoutes.SETTINGS_CHANGE_PASSWORD)
+                    },
+                    onDeleteAccountClick = {
+                        navController.navigate(MainRoutes.SETTINGS_DELETE_ACCOUNT)
+                    }
+                )
+            }
+            composable(MainRoutes.SETTINGS_CHANGE_PASSWORD) {
+                ChangePasswordScreen()
+            }
+            composable(MainRoutes.SETTINGS_DELETE_ACCOUNT) {
+                DeleteAccountScreen()
             }
         }
     }
@@ -106,36 +120,4 @@ private fun NavDestination?.isCurrentDestination(
     return this?.hierarchy?.any { destination ->
         destination.route == route
     } == true
-}
-
-@Composable
-private fun MainScreenContent(
-    selectedDestination: MainScreenDestination,
-    innerPadding: PaddingValues,
-) {
-    when (selectedDestination) {
-        MainScreenDestination.Home -> {
-            HomeScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-        }
-
-        MainScreenDestination.Contacts -> {
-            ContactsScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-        }
-
-        MainScreenDestination.Notifications -> {
-            NotificationsScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-        }
-
-        MainScreenDestination.Settings -> {
-            SettingsScreen(
-                modifier = Modifier.padding(innerPadding),
-            )
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package com.callover.android.features.contacts
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,74 +38,82 @@ import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
 fun ContactsScreen(
+    onCreateContactClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ContactsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ContactsScreenContent(
+        onCreateContactClick = onCreateContactClick,
         modifier = modifier,
         uiState = uiState,
     )
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun ContactsScreenContent(
     uiState: ContactsUiState,
+    onCreateContactClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .imePadding()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start,
-    ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(R.string.contacts_title),
-                style = MaterialTheme.typography.headlineLarge,
-            )
-
-            if (uiState.isSyncing) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onCreateContactClick,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.contacts_create_contact),
                 )
             }
+        },
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.contacts_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+
+                if (uiState.isSyncing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            when {
+                !uiState.hasLoaded -> Unit
+
+                uiState.contacts.isEmpty() -> EmptyContactList()
+
+                else -> ContactsList(
+                    contacts = uiState.contacts,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(96.dp))
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        when {
-            !uiState.hasLoaded -> Unit
-
-            uiState.contacts.isEmpty() -> EmptyContactList()
-
-            else -> ContactsList(
-                contacts = uiState.contacts,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(88.dp))
-
-//        uiState.errorMessage?.let { errorMessage ->
-//            Snackbar(
-//                modifier = Modifier
-//                    .align(Alignment.BottomCenter)
-//                    .padding(16.dp),
-//            ) {
-//                Text(errorMessage)
-//            }
-//        }
     }
 }
 
@@ -110,8 +124,11 @@ private fun ContactsScreenContent(
 )
 @Composable
 fun ContactsScreenPreview() {
-    CalloverMobileTheme {
+    CalloverMobileTheme(
+        darkTheme = true,
+    ) {
         ContactsScreenContent(
+            onCreateContactClick = {},
             uiState = ContactsUiState(
                 contacts = emptyList(),
                 isSyncing = false,
