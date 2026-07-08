@@ -15,6 +15,7 @@ import java.util.Locale
 @Composable
 fun ContactsList(
     contacts: List<Contact>,
+    onContactClick: (contactId: String) -> Unit,
 ) {
     val groupedContacts = remember(contacts) {
         val collator = Collator.getInstance(Locale.getDefault())
@@ -42,8 +43,9 @@ fun ContactsList(
                     contact = contact,
                     // TODO: Implement Presence State to see who is online and pass here
                     isOnline = false,
-                    // TODO: Implement Contact Screen for detailed view and edit/delete features
-                    onTap = {}
+                    onTap = {
+                        onContactClick(contact.id)
+                    }
                 )
             }
         }

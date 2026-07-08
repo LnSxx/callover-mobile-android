@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.callover.android.R
 import com.callover.android.features.change_password.ChangePasswordScreen
+import com.callover.android.features.contact_details.ContactDetailsScreen
 import com.callover.android.features.contacts.ContactsScreen
 import com.callover.android.features.create_contact.CreateContactScreen
 import com.callover.android.features.delete_account.DeleteAccountScreen
@@ -84,10 +85,31 @@ fun MainScreen(
                     onCreateContactClick = {
                         navController.navigate(MainRoutes.CONTACTS_CREATE_CONTACT)
                     },
+                    onContactClick = { contactId ->
+                        navController.navigate(MainRoutes.contactDetail(contactId))
+                    },
                 )
             }
             composable(MainRoutes.CONTACTS_CREATE_CONTACT) {
-                CreateContactScreen()
+                CreateContactScreen(
+                    onContactCreated = { contactId ->
+                        navController.navigate(MainRoutes.contactDetail(contactId)) {
+                            popUpTo(MainRoutes.CONTACTS_CREATE_CONTACT) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                )
+            }
+            composable(
+                route = MainRoutes.CONTACTS_CONTACT_DETAILS,
+            ) { backStackEntry ->
+                val contactId = backStackEntry.arguments?.getString("contactId")
+                    ?: return@composable
+
+                ContactDetailsScreen(
+                    contactId = contactId,
+                )
             }
 
             composable(MainRoutes.NOTIFICATIONS) {

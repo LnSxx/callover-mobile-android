@@ -39,6 +39,7 @@ import com.callover.android.ui.theme.CalloverMobileTheme
 @Composable
 fun ContactsScreen(
     onCreateContactClick: () -> Unit,
+    onContactClick: (contactId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ContactsViewModel = hiltViewModel(),
 ) {
@@ -46,6 +47,7 @@ fun ContactsScreen(
 
     ContactsScreenContent(
         onCreateContactClick = onCreateContactClick,
+        onContactClick = onContactClick,
         modifier = modifier,
         uiState = uiState,
     )
@@ -56,6 +58,7 @@ fun ContactsScreen(
 private fun ContactsScreenContent(
     uiState: ContactsUiState,
     onCreateContactClick: () -> Unit,
+    onContactClick: (contactId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -109,6 +112,7 @@ private fun ContactsScreenContent(
 
                 else -> ContactsList(
                     contacts = uiState.contacts,
+                    onContactClick = onContactClick,
                 )
             }
 
@@ -129,6 +133,7 @@ fun ContactsScreenPreview() {
     ) {
         ContactsScreenContent(
             onCreateContactClick = {},
+            onContactClick = { _ -> },
             uiState = ContactsUiState(
                 contacts = emptyList(),
                 isSyncing = false,

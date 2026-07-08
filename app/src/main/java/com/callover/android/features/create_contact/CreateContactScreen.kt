@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,15 +37,26 @@ private const val MAX_CONTACT_NAME_LENGTH = 80
 @Composable
 fun CreateContactScreen(
     modifier: Modifier = Modifier,
+    onContactCreated: (contactId: String) -> Unit,
     viewModel: CreateContactViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is CreateContactEvent.ContactCreated -> {
+                    onContactCreated(event.contactId)
+                }
+            }
+        }
+    }
 
     CreateContactScreenContent(
         modifier = modifier,
         uiState = uiState,
         onCreateClick = { name, userId ->
-            viewModel.createContact(name, userId)
+            viewModel.createContact(userId, name)
         },
         onInputChange = {
             viewModel.clearErrors()

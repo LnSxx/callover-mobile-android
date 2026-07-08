@@ -7,8 +7,10 @@ import com.callover.android.core.network.ApiResult
 import com.callover.android.features.login.LoginUiState
 import com.callover.android.features.login.toLoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,29 +21,41 @@ class CreateContactViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CreateContactUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun createContact(
-        name: String,
-        userId: String,
-    ) {
-        if (_uiState.value.isLoading) {
-            return
-        }
+    private val _events = Channel<CreateContactEvent>()
+    val events = _events.receiveAsFlow()
 
+    fun createContact(
+        contactUserId: String,
+        alias: String,
+    ) {
         viewModelScope.launch {
-            _uiState.value = CreateContactUiState(isLoading = true)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                generalError = null,
+                userIdError = null,
+                nameError = null,
+            )
 
             when (
                 val result = contactsRepository.createContact(
-                    alias = name,
-                    contactUserId = userId,
+                    contactUserId = contactUserId,
+                    alias = alias,
                 )
             ) {
                 is ApiResult.Success -> {
                     _uiState.value = CreateContactUiState()
+
+                    _events.send(
+                        CreateContactEvent.ContactCreated(
+                            contactId = result.data.id,
+                        ),
+                    )
                 }
 
                 is ApiResult.Error -> {
-                    _uiState.value = result.error.toCreateContactUiState()
+                    _uiState.value = result.error
+                        .toCreateContactUiState()
+                        .copy(isLoading = false)
                 }
             }
         }

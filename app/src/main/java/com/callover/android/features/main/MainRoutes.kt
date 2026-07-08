@@ -6,7 +6,10 @@ object MainRoutes {
 
     const val CONTACTS = "contacts"
     const val CONTACTS_CREATE_CONTACT = "contacts_create_contact"
-    const val CONTACTS_CONTACT_DETAILS = "contacts_contact_details"
+    const val CONTACTS_CONTACT_DETAILS = "contacts_contact_details/{contactId}"
+    fun contactDetail(contactId: String): String {
+        return "contacts_contact_details/$contactId"
+    }
 
     const val NOTIFICATIONS = "notifications"
 
