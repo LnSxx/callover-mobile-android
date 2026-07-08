@@ -39,6 +39,11 @@
     <string name="notification_group_unknown_date">Unknown date</string>
 
     <string name="create_contact_title">Create a new contact</string>
+    <string name="name_label">Name</string>
+    <string name="name_label_description">New contact\'s name. Only visible to you</string>
+    <string name="user_id_label">Account ID</string>
+    <string name="user_id_label_description">Account ID in Callover</string>
+    <string name="create_button">Create</string>
 
     <string name="change_password_title">Change Password</string>
 
