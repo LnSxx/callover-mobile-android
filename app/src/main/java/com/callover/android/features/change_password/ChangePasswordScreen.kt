@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
+import com.callover.android.ui.components.PasswordTextField
 import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
@@ -102,33 +103,27 @@ fun ChangePasswordScreenContent(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        OutlinedTextField(
+        PasswordTextField(
             value = currentPassword,
             onValueChange = {
                 currentPassword = it
                 onInputChange()
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.current_password_label)) },
-            singleLine = true,
+            label = stringResource(R.string.current_password_label),
             enabled = !uiState.isLoading,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-            ),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
+        PasswordTextField(
             value = newPassword,
             onValueChange = {
                 newPassword = it
                 onInputChange()
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.new_password_label)) },
-            singleLine = true,
+            label = stringResource(R.string.new_password_label),
             enabled = !uiState.isLoading,
             isError = uiState.newPasswordError != null,
             supportingText = {
@@ -136,10 +131,6 @@ fun ChangePasswordScreenContent(
                     Text(error)
                 }
             },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-            ),
         )
 
         Spacer(modifier = Modifier.height(24.dp))

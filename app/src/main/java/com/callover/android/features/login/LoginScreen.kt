@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,14 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
 import com.callover.android.ui.components.CalloverTopBar
+import com.callover.android.ui.components.PasswordTextField
 import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
@@ -133,15 +131,14 @@ private fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(
+            PasswordTextField(
                 value = password,
                 onValueChange = {
                     password = it
                     onInputChange()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.password_label)) },
-                singleLine = true,
+                label = stringResource(R.string.password_label),
                 enabled = !uiState.isLoading,
                 isError = uiState.passwordError != null,
                 supportingText = {
@@ -149,10 +146,6 @@ private fun LoginScreenContent(
                         Text(error)
                     }
                 },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                ),
             )
 
             Spacer(modifier = Modifier.height(24.dp))
