@@ -80,10 +80,6 @@ fun SettingsActions(
         ElevatedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = onDeleteAccountClick,
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-            ),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

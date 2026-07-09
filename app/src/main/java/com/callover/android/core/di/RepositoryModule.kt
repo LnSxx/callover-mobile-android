@@ -1,5 +1,7 @@
 package com.callover.android.core.di
 
+import com.callover.android.core.data.account.AccountRepository
+import com.callover.android.core.data.account.AccountRepositoryImpl
 import com.callover.android.core.data.auth.AuthRepository
 import com.callover.android.core.data.auth.AuthRepositoryImpl
 import com.callover.android.core.data.contacts.ContactsRepository
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindContactsRepository(
         implementation: ContactsRepositoryImpl,
     ): ContactsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAccountRepository(
+        implementation: AccountRepositoryImpl,
+    ): AccountRepository
 }

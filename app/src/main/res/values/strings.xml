@@ -46,6 +46,10 @@
     <string name="create_button">Create</string>
 
     <string name="change_password_title">Change Password</string>
+    <string name="change_password_subtitle">After successful password change you will need to sign in again.</string>
+    <string name="current_password_label">Current password</string>
+    <string name="new_password_label">New password</string>
+    <string name="change_password_button_label">Change Password</string>
 
     <string name="delete_account_title">Delete Account?</string>
 </resources>
