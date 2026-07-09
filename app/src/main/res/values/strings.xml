@@ -52,4 +52,6 @@
     <string name="change_password_button_label">Change Password</string>
 
     <string name="delete_account_title">Delete Account?</string>
+    <string name="delete_account_subtitle">Deleting your account is permanent. Your profile, contacts, sessions, notifications and call history will be removed.</string>
+    <string name="delete_account_warning">There is no way to restore your data back after deleting.</string>
 </resources>
