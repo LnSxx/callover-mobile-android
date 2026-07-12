@@ -1,5 +1,6 @@
 package com.callover.android.features.contact_details
 
+import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -27,9 +29,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,9 +42,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
 import com.callover.android.core.domain.models.Contact
+import com.callover.android.features.contact_details.components.ContactActions
 import com.callover.android.features.contact_details.components.ContactInfoCard
 import com.callover.android.ui.components.LabeledDivider
 import com.callover.android.ui.theme.CalloverMobileTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun ContactDetailsScreen(
@@ -50,6 +57,7 @@ fun ContactDetailsScreen(
     viewModel: ContactDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val actionState by viewModel.actionState.collectAsStateWithLifecycle()
 
     LaunchedEffect(contactId) {
         viewModel.setContactId(contactId)
@@ -60,17 +68,27 @@ fun ContactDetailsScreen(
         onEditNameClick = onEditNameClick,
         onEditNoteClick = onEditNoteClick,
         uiState = uiState,
+        actionState = actionState,
+        onToggleIsFavouriteClick = viewModel::toggleFavourite,
+        onToggleIsMutedClick = viewModel::toggleMuted,
+        onToggleIsBlockedClick = viewModel::toggleBlocked,
     )
 }
 
 @Composable
 fun ContactDetailsScreenContent(
     uiState: ContactDetailsUiState,
+    actionState: ContactDetailsActionState,
     onEditNameClick: () -> Unit,
     onEditNoteClick: () -> Unit,
+    onToggleIsFavouriteClick: () -> Unit,
+    onToggleIsMutedClick: () -> Unit,
+    onToggleIsBlockedClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = modifier
@@ -114,6 +132,27 @@ fun ContactDetailsScreenContent(
                 ) {
                     DropdownMenuItem(
                         text = {
+                            Text(stringResource(R.string.copy_account_id))
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.ContentCopy,
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            scope.launch {
+                                clipboardManager.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText("Account ID", uiState.contact?.contactUserId.orEmpty())
+                                    )
+                                )
+                            }
+                        },
+                    )
+
+                    DropdownMenuItem(
+                        text = {
                             Text(stringResource(R.string.edit_name))
                         },
                         leadingIcon = {
@@ -149,7 +188,11 @@ fun ContactDetailsScreenContent(
             else -> {
                 ContactDetailsContent(
                     contact = uiState.contact,
-                    onEditNoteClick = onEditNoteClick
+                    onEditNoteClick = onEditNoteClick,
+                    onToggleIsFavouriteClick = onToggleIsFavouriteClick,
+                    onToggleIsMutedClick = onToggleIsMutedClick,
+                    onToggleIsBlockedClick = onToggleIsBlockedClick,
+                    actionState = actionState,
                 )
             }
         }
@@ -160,6 +203,10 @@ fun ContactDetailsScreenContent(
 private fun ContactDetailsContent(
     contact: Contact,
     onEditNoteClick: () -> Unit,
+    onToggleIsFavouriteClick: () -> Unit,
+    onToggleIsMutedClick: () -> Unit,
+    onToggleIsBlockedClick: () -> Unit,
+    actionState: ContactDetailsActionState,
 ) {
     val hasNote = !contact.note.isNullOrBlank()
 
@@ -211,8 +258,32 @@ private fun ContactDetailsContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         LabeledDivider(
-            text = stringResource(R.string.control)
+            text = stringResource(R.string.actions)
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (actionState.actionError != null) {
+            Text(
+                text = actionState.actionError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        ContactActions(
+            isFavourite = contact.isFavourite,
+            isMuted = contact.isMuted,
+            isBlocked = contact.isBlocked,
+            onToggleIsFavouriteClick = onToggleIsFavouriteClick,
+            onToggleIsMutedClick = onToggleIsMutedClick,
+            onToggleIsBlockedClick = onToggleIsBlockedClick,
+            isLoading = actionState.isActionLoading,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -238,8 +309,15 @@ fun ContactDetailsScreenPreview() {
                     updatedAt = "2026-01-01T00:00:00.000Z",
                 ),
             ),
+            actionState = ContactDetailsActionState(
+                isActionLoading = true,
+                actionError = "Couldn't save. Please try again"
+            ),
             onEditNameClick = {},
             onEditNoteClick = {},
+            onToggleIsBlockedClick = {},
+            onToggleIsMutedClick = {},
+            onToggleIsFavouriteClick = {},
         )
     }
 }

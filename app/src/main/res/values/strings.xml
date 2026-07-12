@@ -64,11 +64,12 @@
     <string name="contact_modifier_favourite">Favourite</string>
     <string name="contact_not_found">Contact not found</string>
     <string name="note">Note</string>
-    <string name="control">Control</string>
+    <string name="actions">Actions</string>
     <string name="add_note_button">Add Note</string>
     <string name="edit_note_button">Edit Note</string>
     <string name="contact_options">Contact options</string>
     <string name="edit_name">Edit name</string>
+    <string name="copy_account_id">Copy Account ID</string>
 
     <string name="edit_contact_name_title">Edit contact name</string>
     <string name="contacts_new_name_label">Contact\'s new name</string>
@@ -77,4 +78,11 @@
     <string name="edit_contact_note_title">Edit contact note</string>
     <string name="contacts_new_note_label">Contact\'s new note</string>
     <string name="note_label">Note</string>
+
+    <string name="add_to_favourites">Add to Favourites</string>
+    <string name="remove_from_favourites">Remove from Favourites</string>
+    <string name="mute">Mute</string>
+    <string name="unmute">Unmute</string>
+    <string name="block">Block</string>
+    <string name="unblock">Unblock</string>
 </resources>
