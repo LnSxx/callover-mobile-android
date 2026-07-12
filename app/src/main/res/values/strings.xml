@@ -54,4 +54,23 @@
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_subtitle">Deleting your account is permanent. Your profile, contacts, sessions, notifications and call history will be removed.</string>
     <string name="delete_account_warning">There is no way to restore your data back after deleting.</string>
+
+    <string name="contact_details_title">Contact details</string>
+    <string name="contact_modifier_blocked">Blocked</string>
+    <string name="contact_modifier_muted">Muted</string>
+    <string name="contact_modifier_notifications">Notifications</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="contact_modifier_favourite">Favourite</string>
+    <string name="contact_not_found">Contact not found</string>
+    <string name="note">Note</string>
+    <string name="control">Control</string>
+    <string name="add_note_button">Add Note</string>
+    <string name="edit_note_button">Edit Note</string>
+    <string name="contact_options">Contact options</string>
+    <string name="edit_name">Edit name</string>
+
+    <string name="edit_contact_name_title">Edit contact name</string>
+    <string name="contacts_new_name_label">Contact\'s new name</string>
+    <string name="save_button">Save</string>
 </resources>

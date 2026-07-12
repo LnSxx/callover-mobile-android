@@ -1,6 +1,7 @@
 package com.callover.android.core.data.contacts
 
 import com.callover.android.core.data.contacts.dto.CreateContactDto
+import com.callover.android.core.data.contacts.dto.EditContactRequestDto
 import com.callover.android.core.database.dao.ContactsDao
 import com.callover.android.core.database.dao.SyncMetadataDao
 import com.callover.android.core.database.entities.SyncMetadataEntity
@@ -37,6 +38,14 @@ class ContactsRepositoryImpl @Inject constructor(
     override fun observeContacts(): Flow<List<Contact>> {
         return contactsDao.observeContacts().map { entities ->
             entities.map { it.toDomain() }
+        }
+    }
+
+    override fun observeContactById(
+        id: String,
+    ): Flow<Contact?> {
+        return contactsDao.observeContactById(id).map { entity ->
+            entity?.toDomain()
         }
     }
 
@@ -109,6 +118,40 @@ class ContactsRepositoryImpl @Inject constructor(
                 body = CreateContactDto(
                     contactUserId = contactUserId,
                     alias = alias,
+                ),
+            )
+
+            val entity = contactDto.toEntity()
+
+            contactsDao.upsertAll(
+                contacts = listOf(entity),
+            )
+
+            updateContactsLastRemoteUpdatedAt(
+                updatedAt = contactDto.updatedAt,
+            )
+
+            entity.toDomain()
+        }
+    }
+
+    override suspend fun editContact(
+        contactId: String,
+        alias: String?,
+        note: String?,
+        isFavourite: Boolean?,
+        isBlocked: Boolean?,
+        isMuted: Boolean?,
+    ): ApiResult<Contact> {
+        return safeApiCall(json) {
+            val contactDto = api.editContact(
+                id = contactId,
+                body = EditContactRequestDto(
+                    alias = alias,
+                    note = note,
+                    isFavourite = isFavourite,
+                    isBlocked = isBlocked,
+                    isMuted = isMuted,
                 ),
             )
 

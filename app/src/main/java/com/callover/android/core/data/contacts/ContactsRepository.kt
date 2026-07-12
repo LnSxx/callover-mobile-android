@@ -9,11 +9,24 @@ interface ContactsRepository {
     fun observeIsSyncing(): StateFlow<Boolean>
     fun observeContacts(): Flow<List<Contact>>
 
+    fun observeContactById(
+        id: String,
+    ): Flow<Contact?>
+
     suspend fun syncContacts(): ApiResult<Unit>
 
     suspend fun createContact(
         alias: String,
         contactUserId: String,
+    ): ApiResult<Contact>
+
+    suspend fun editContact(
+        contactId: String,
+        alias: String? = null,
+        note: String? = null,
+        isFavourite: Boolean? = null,
+        isBlocked: Boolean? = null,
+        isMuted: Boolean? = null,
     ): ApiResult<Contact>
 
     suspend fun deleteContact(

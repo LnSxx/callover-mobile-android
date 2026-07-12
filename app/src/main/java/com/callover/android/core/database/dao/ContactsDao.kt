@@ -18,6 +18,11 @@ interface ContactsDao {
     )
     fun observeContacts(): Flow<List<ContactEntity>>
 
+    @Query("SELECT * FROM contacts WHERE id = :id LIMIT 1")
+    fun observeContactById(
+        id: String,
+    ): Flow<ContactEntity?>
+
     @Upsert
     suspend fun upsertAll(
         contacts: List<ContactEntity>,

@@ -32,7 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
 import com.callover.android.ui.theme.CalloverMobileTheme
 
-private const val MAX_CONTACT_NAME_LENGTH = 80
+const val MAX_CONTACT_NAME_LENGTH = 80
 
 @Composable
 fun CreateContactScreen(
@@ -65,7 +65,7 @@ fun CreateContactScreen(
 }
 
 @Composable
-fun CreateContactScreenContent(
+private fun CreateContactScreenContent(
     uiState: CreateContactUiState,
     onCreateClick: (name: String, userId: String) -> Unit,
     onInputChange: () -> Unit,

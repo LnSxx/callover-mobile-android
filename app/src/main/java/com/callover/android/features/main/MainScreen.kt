@@ -19,6 +19,7 @@ import com.callover.android.features.contact_details.ContactDetailsScreen
 import com.callover.android.features.contacts.ContactsScreen
 import com.callover.android.features.create_contact.CreateContactScreen
 import com.callover.android.features.delete_account.DeleteAccountScreen
+import com.callover.android.features.edit_contact_name.EditContactNameScreen
 import com.callover.android.features.home.HomeScreen
 import com.callover.android.features.notifications.NotificationsScreen
 import com.callover.android.features.settings.SettingsScreen
@@ -109,6 +110,18 @@ fun MainScreen(
 
                 ContactDetailsScreen(
                     contactId = contactId,
+                    onEditNameClick = {
+                        navController.navigate(MainRoutes.editContactName(contactId))
+                    }
+                )
+            }
+            composable(
+                route = MainRoutes.CONTACTS_EDIT_CONTACT_NAME,
+            ) { backStackEntry ->
+                EditContactNameScreen(
+                    onContactNameEdited = {
+                        navController.popBackStack()
+                    },
                 )
             }
 
