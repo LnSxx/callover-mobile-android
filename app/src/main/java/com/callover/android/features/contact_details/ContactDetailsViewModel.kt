@@ -5,14 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.network.ApiResult
 import com.callover.android.features.create_contact.CreateContactEvent
-import com.callover.android.features.create_contact.CreateContactUiState
-import com.callover.android.features.create_contact.toCreateContactUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +24,9 @@ class ContactDetailsViewModel @Inject constructor(
     private val contactId = MutableStateFlow<String?>(null)
 
     val actionState = MutableStateFlow(ContactDetailsActionState())
+
+    private val _events = Channel<ContactDetailsEvent>()
+    val events = _events.receiveAsFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState = contactId
@@ -57,6 +60,38 @@ class ContactDetailsViewModel @Inject constructor(
         }
 
         contactId.value = id
+    }
+
+    fun deleteContact() {
+        val id = contactId.value ?: return
+
+        viewModelScope.launch {
+            actionState.value = actionState.value.copy(
+                isActionLoading = true,
+                actionError = null,
+            )
+
+            when (
+                val result = contactsRepository.deleteContact(
+                    id = id,
+                )
+            ) {
+                is ApiResult.Success -> {
+                    actionState.value = ContactDetailsActionState()
+
+                    _events.send(
+                        ContactDetailsEvent.ContactDeleted(),
+                    )
+                }
+
+                is ApiResult.Error -> {
+                    actionState.value = ContactDetailsActionState(
+                        isActionLoading = false,
+                        actionError = result.error.toContactDetailsActionError(),
+                    )
+                }
+            }
+        }
     }
 
     fun toggleFavourite() {

@@ -15,8 +15,10 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +32,7 @@ fun ContactActions(
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
     onToggleIsBlockedClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     isFavourite: Boolean,
     isMuted: Boolean,
     isBlocked: Boolean,
@@ -125,6 +128,35 @@ fun ContactActions(
                     } else {
                         R.string.block
                     }),
+                )
+            }
+        }
+
+        ElevatedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onDeleteClick,
+            enabled = !isLoading,
+            colors = ButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
+            )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = stringResource(R.string.delete),
                 )
             }
         }

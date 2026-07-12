@@ -116,6 +116,9 @@ fun MainScreen(
                     },
                     onEditNoteClick = {
                         navController.navigate(MainRoutes.editContactNote(contactId))
+                    },
+                    onContactDeleted = {
+                        navController.popBackStack()
                     }
                 )
             }

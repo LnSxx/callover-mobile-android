@@ -44,6 +44,7 @@ import com.callover.android.R
 import com.callover.android.core.domain.models.Contact
 import com.callover.android.features.contact_details.components.ContactActions
 import com.callover.android.features.contact_details.components.ContactInfoCard
+import com.callover.android.features.create_contact.CreateContactEvent
 import com.callover.android.ui.components.LabeledDivider
 import com.callover.android.ui.theme.CalloverMobileTheme
 import kotlinx.coroutines.launch
@@ -53,6 +54,7 @@ fun ContactDetailsScreen(
     contactId: String,
     onEditNameClick: () -> Unit,
     onEditNoteClick: () -> Unit,
+    onContactDeleted: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ContactDetailsViewModel = hiltViewModel(),
 ) {
@@ -61,6 +63,16 @@ fun ContactDetailsScreen(
 
     LaunchedEffect(contactId) {
         viewModel.setContactId(contactId)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ContactDetailsEvent.ContactDeleted -> {
+                    onContactDeleted()
+                }
+            }
+        }
     }
 
     ContactDetailsScreenContent(
@@ -72,6 +84,7 @@ fun ContactDetailsScreen(
         onToggleIsFavouriteClick = viewModel::toggleFavourite,
         onToggleIsMutedClick = viewModel::toggleMuted,
         onToggleIsBlockedClick = viewModel::toggleBlocked,
+        onDeleteClick = viewModel::deleteContact,
     )
 }
 
@@ -84,6 +97,7 @@ fun ContactDetailsScreenContent(
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
     onToggleIsBlockedClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
@@ -193,6 +207,7 @@ fun ContactDetailsScreenContent(
                     onToggleIsMutedClick = onToggleIsMutedClick,
                     onToggleIsBlockedClick = onToggleIsBlockedClick,
                     actionState = actionState,
+                    onDeleteClick = onDeleteClick,
                 )
             }
         }
@@ -206,6 +221,7 @@ private fun ContactDetailsContent(
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
     onToggleIsBlockedClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     actionState: ContactDetailsActionState,
 ) {
     val hasNote = !contact.note.isNullOrBlank()
@@ -280,6 +296,7 @@ private fun ContactDetailsContent(
             onToggleIsFavouriteClick = onToggleIsFavouriteClick,
             onToggleIsMutedClick = onToggleIsMutedClick,
             onToggleIsBlockedClick = onToggleIsBlockedClick,
+            onDeleteClick = onDeleteClick,
             isLoading = actionState.isActionLoading,
         )
 
@@ -310,7 +327,7 @@ fun ContactDetailsScreenPreview() {
                 ),
             ),
             actionState = ContactDetailsActionState(
-                isActionLoading = true,
+                isActionLoading = false,
                 actionError = "Couldn't save. Please try again"
             ),
             onEditNameClick = {},
@@ -318,6 +335,7 @@ fun ContactDetailsScreenPreview() {
             onToggleIsBlockedClick = {},
             onToggleIsMutedClick = {},
             onToggleIsFavouriteClick = {},
+            onDeleteClick = {},
         )
     }
 }

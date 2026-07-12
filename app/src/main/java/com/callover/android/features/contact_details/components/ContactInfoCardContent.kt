@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -127,15 +129,8 @@ fun ContactInfoCardContent(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(
-                    stringResource(R.string.user_id_label),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.End,
-                )
-
                 AccountIdBadge(
                     accountId = userId,
                 )
@@ -154,17 +149,30 @@ fun ContactInfoCardContent(
                     textAlign = TextAlign.End,
                 )
 
-                Text(
-                    stringResource(
-                        if (isMuted) {
-                            R.string.off
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isMuted) {
+                            Icons.Outlined.NotificationsOff
                         } else {
-                            R.string.on
-                        }
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.End,
-                )
+                            Icons.Outlined.Notifications
+                        },
+                        contentDescription = null,
+                    )
+
+                    Text(
+                        stringResource(
+                            if (isMuted) {
+                                R.string.off
+                            } else {
+                                R.string.on
+                            }
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.End,
+                    )
+                }
             }
         }
     }
