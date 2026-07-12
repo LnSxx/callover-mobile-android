@@ -73,4 +73,8 @@
     <string name="edit_contact_name_title">Edit contact name</string>
     <string name="contacts_new_name_label">Contact\'s new name</string>
     <string name="save_button">Save</string>
+
+    <string name="edit_contact_note_title">Edit contact note</string>
+    <string name="contacts_new_note_label">Contact\'s new note</string>
+    <string name="note_label">Note</string>
 </resources>

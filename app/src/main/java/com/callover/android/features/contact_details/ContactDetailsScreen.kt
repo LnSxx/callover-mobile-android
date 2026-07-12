@@ -45,6 +45,7 @@ import com.callover.android.ui.theme.CalloverMobileTheme
 fun ContactDetailsScreen(
     contactId: String,
     onEditNameClick: () -> Unit,
+    onEditNoteClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ContactDetailsViewModel = hiltViewModel(),
 ) {
@@ -57,6 +58,7 @@ fun ContactDetailsScreen(
     ContactDetailsScreenContent(
         modifier = modifier,
         onEditNameClick = onEditNameClick,
+        onEditNoteClick = onEditNoteClick,
         uiState = uiState,
     )
 }
@@ -65,6 +67,7 @@ fun ContactDetailsScreen(
 fun ContactDetailsScreenContent(
     uiState: ContactDetailsUiState,
     onEditNameClick: () -> Unit,
+    onEditNoteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
@@ -146,7 +149,7 @@ fun ContactDetailsScreenContent(
             else -> {
                 ContactDetailsContent(
                     contact = uiState.contact,
-                    onNoteClick = {}
+                    onEditNoteClick = onEditNoteClick
                 )
             }
         }
@@ -156,7 +159,7 @@ fun ContactDetailsScreenContent(
 @Composable
 private fun ContactDetailsContent(
     contact: Contact,
-    onNoteClick: () -> Unit,
+    onEditNoteClick: () -> Unit,
 ) {
     val hasNote = !contact.note.isNullOrBlank()
 
@@ -192,7 +195,7 @@ private fun ContactDetailsContent(
 
         TextButton (
             modifier = Modifier.fillMaxWidth(),
-            onClick = onNoteClick,
+            onClick = onEditNoteClick,
         ) {
             Text(
                 text = stringResource(
@@ -235,7 +238,8 @@ fun ContactDetailsScreenPreview() {
                     updatedAt = "2026-01-01T00:00:00.000Z",
                 ),
             ),
-            onEditNameClick = {}
+            onEditNameClick = {},
+            onEditNoteClick = {},
         )
     }
 }
