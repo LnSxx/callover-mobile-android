@@ -112,6 +112,7 @@ private fun ContactsScreenContent(
 
                 else -> ContactsList(
                     contacts = uiState.contacts,
+                    onlineUserIds = uiState.onlineUserIds,
                     onContactClick = onContactClick,
                 )
             }

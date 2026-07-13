@@ -202,6 +202,7 @@ fun ContactDetailsScreenContent(
             else -> {
                 ContactDetailsContent(
                     contact = uiState.contact,
+                    isOnline = uiState.isOnline,
                     onEditNoteClick = onEditNoteClick,
                     onToggleIsFavouriteClick = onToggleIsFavouriteClick,
                     onToggleIsMutedClick = onToggleIsMutedClick,
@@ -217,6 +218,7 @@ fun ContactDetailsScreenContent(
 @Composable
 private fun ContactDetailsContent(
     contact: Contact,
+    isOnline: Boolean,
     onEditNoteClick: () -> Unit,
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
@@ -235,7 +237,7 @@ private fun ContactDetailsContent(
             isFavourite = contact.isFavourite,
             isBlocked = contact.isBlocked,
             isMuted = contact.isMuted,
-            isOnline = false,
+            isOnline = isOnline,
         )
 
         Spacer(modifier = Modifier.height(24.dp))

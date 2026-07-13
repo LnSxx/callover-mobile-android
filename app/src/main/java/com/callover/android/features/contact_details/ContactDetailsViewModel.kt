@@ -4,13 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.network.ApiResult
-import com.callover.android.features.create_contact.CreateContactEvent
+import com.callover.android.core.realtime.presence.PresenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactDetailsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
+    private val presenceRepository: PresenceRepository,
 ) : ViewModel() {
     private val contactId = MutableStateFlow<String?>(null)
 
@@ -29,30 +32,30 @@ class ContactDetailsViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState = contactId
+    private val contactFlow = contactId
         .flatMapLatest { id ->
             if (id == null) {
-                kotlinx.coroutines.flow.flowOf(
-                    ContactDetailsUiState(
-                        contact = null,
-                        isLoading = true,
-                    )
-                )
+                flowOf(null)
             } else {
                 contactsRepository.observeContactById(id)
-                    .map { contact ->
-                        ContactDetailsUiState(
-                            contact = contact,
-                            isLoading = false,
-                        )
-                    }
             }
         }
-        .stateIn(
+
+    val uiState = combine(
+        contactFlow,
+        presenceRepository.onlineUserIds,
+        actionState,
+    ) { contact, onlineUserIds, actionState ->
+        ContactDetailsUiState(
+            contact = contact,
+            isLoading = contactId.value == null,
+            isOnline = contact?.contactUserId in onlineUserIds
+        )
+    }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ContactDetailsUiState(),
-        )
+    )
 
     fun setContactId(id: String) {
         if (contactId.value == id) {

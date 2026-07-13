@@ -15,6 +15,7 @@ import java.util.Locale
 @Composable
 fun ContactsList(
     contacts: List<Contact>,
+    onlineUserIds: Set<String>,
     onContactClick: (contactId: String) -> Unit,
 ) {
     val groupedContacts = remember(contacts) {
@@ -39,10 +40,11 @@ fun ContactsList(
             )
 
             contacts.forEach { contact ->
+                val isOnline = contact.contactUserId in onlineUserIds
+
                 ContactListItem(
                     contact = contact,
-                    // TODO: Implement Presence State to see who is online and pass here
-                    isOnline = false,
+                    isOnline = isOnline,
                     onTap = {
                         onContactClick(contact.id)
                     }

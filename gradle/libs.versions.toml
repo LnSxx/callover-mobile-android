@@ -20,6 +20,7 @@ room = "2.7.2"
 foundationVersion = "1.11.4"
 navigationCompose = "2.10.0-alpha06"
 material3 = "1.4.0"
+socketio = "2.1.2"
 
 [libraries]
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -54,6 +55,7 @@ androidx-material-icons-extended = { group = "androidx.compose.material", name =
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+socketio-client = { module = "io.socket:socket.io-client", version.ref = "socketio" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

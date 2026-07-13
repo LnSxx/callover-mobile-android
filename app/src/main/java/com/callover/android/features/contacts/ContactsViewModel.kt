@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.network.ApiError
 import com.callover.android.core.network.ApiResult
+import com.callover.android.core.realtime.presence.PresenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
+    private val presenceRepository: PresenceRepository,
 ) : ViewModel() {
     private val screenState = MutableStateFlow(
         ContactsScreenState(
@@ -28,10 +30,12 @@ class ContactsViewModel @Inject constructor(
     val uiState = combine(
         contactsRepository.observeContacts(),
         contactsRepository.observeIsSyncing(),
+        presenceRepository.onlineUserIds,
         screenState,
-    ) { contacts, isSyncing, screenState ->
+    ) { contacts, isSyncing, onlineUserIds, screenState ->
         ContactsUiState(
             contacts = contacts,
+            onlineUserIds = onlineUserIds,
             isSyncing = isSyncing,
             hasLoaded = true,
             errorMessage = screenState.errorMessage,
@@ -41,6 +45,7 @@ class ContactsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = ContactsUiState(
             contacts = emptyList(),
+            onlineUserIds = emptySet(),
             isSyncing = true,
             hasLoaded = false,
             errorMessage = null,
