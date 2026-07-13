@@ -61,14 +61,19 @@ class SocketManager @Inject constructor(
     fun emit(
         event: String,
         data: Any,
-    ) {
-        val currentSocket = socket ?: return
+    ): Boolean {
+        val currentSocket = socket
+
+        if (currentSocket == null) {
+            return false
+        }
 
         if (!currentSocket.connected()) {
-            return
+            return false
         }
 
         currentSocket.emit(event, data)
+        return true
     }
 
     fun on(

@@ -33,54 +33,25 @@ class PresenceRealtimeDataSource @Inject constructor(
             emitSubscribeIfNeeded(force = true)
         }
 
-        socketManager.on(RealtimeEventType.PresenceInitial.type) { args ->
-            val payload = args.firstOrNull() as? JSONObject ?: return@on
-            val array = payload.optJSONArray("onlineUserIds") ?: return@on
+        socketManager.on("message") { args ->
+            val message = args.firstOrNull() as? JSONObject ?: return@on
 
-            val onlineUserIds = buildSet {
-                for (index in 0 until array.length()) {
-                    val userId = array.optString(index)
-                    if (userId.isNotBlank()) {
-                        add(userId)
-                    }
+            val type = message.optString("type")
+            val payload = message.optJSONObject("payload") ?: JSONObject()
+
+            when (type) {
+                RealtimeEventType.PresenceInitial.type -> {
+                    handlePresenceInitial(payload)
+                }
+
+                RealtimeEventType.PresenceUserOnline.type -> {
+                    handlePresenceUserOnline(payload)
+                }
+
+                RealtimeEventType.PresenceUserOffline.type -> {
+                    handlePresenceUserOffline(payload)
                 }
             }
-
-            _events.tryEmit(
-                PresenceEvent.Initial(
-                    onlineUserIds = onlineUserIds,
-                ),
-            )
-        }
-
-        socketManager.on(RealtimeEventType.PresenceUserOnline.type) { args ->
-            val payload = args.firstOrNull() as? JSONObject ?: return@on
-            val userId = payload.optString("userId")
-
-            if (userId.isBlank()) {
-                return@on
-            }
-
-            _events.tryEmit(
-                PresenceEvent.UserOnline(
-                    userId = userId,
-                ),
-            )
-        }
-
-        socketManager.on(RealtimeEventType.PresenceUserOffline.type) { args ->
-            val payload = args.firstOrNull() as? JSONObject ?: return@on
-            val userId = payload.optString("userId")
-
-            if (userId.isBlank()) {
-                return@on
-            }
-
-            _events.tryEmit(
-                PresenceEvent.UserOffline(
-                    userId = userId,
-                ),
-            )
         }
     }
 
@@ -88,9 +59,7 @@ class PresenceRealtimeDataSource @Inject constructor(
         isListening = false
 
         socketManager.off(Socket.EVENT_CONNECT)
-        socketManager.off(RealtimeEventType.PresenceInitial.type)
-        socketManager.off(RealtimeEventType.PresenceUserOnline.type)
-        socketManager.off(RealtimeEventType.PresenceUserOffline.type)
+        socketManager.off("message")
 
         lastRequestedUserIds = emptyList()
         lastEmittedUserIds = emptyList()
@@ -125,11 +94,72 @@ class PresenceRealtimeDataSource @Inject constructor(
             put("userIds", JSONArray(lastRequestedUserIds))
         }
 
-        socketManager.emit(
+        val emitted = socketManager.emit(
             event = RealtimeEventType.PresenceSubscribe.type,
             data = payload,
         )
 
-        lastEmittedUserIds = lastRequestedUserIds
+        if (emitted) {
+            lastEmittedUserIds = lastRequestedUserIds
+        }
+    }
+
+    private fun handlePresenceInitial(
+        payload: JSONObject,
+    ) {
+        val array = payload.optJSONArray("onlineUserIds") ?: JSONArray()
+
+        val onlineUserIds = array.toStringSet()
+
+
+        _events.tryEmit(
+            PresenceEvent.Initial(
+                onlineUserIds = onlineUserIds,
+            ),
+        )
+    }
+
+    private fun handlePresenceUserOnline(
+        payload: JSONObject,
+    ) {
+        val userId = payload.optString("userId")
+
+        if (userId.isBlank()) {
+            return
+        }
+
+        _events.tryEmit(
+            PresenceEvent.UserOnline(
+                userId = userId,
+            ),
+        )
+    }
+
+    private fun handlePresenceUserOffline(
+        payload: JSONObject,
+    ) {
+        val userId = payload.optString("userId")
+
+        if (userId.isBlank()) {
+            return
+        }
+
+        _events.tryEmit(
+            PresenceEvent.UserOffline(
+                userId = userId,
+            ),
+        )
+    }
+
+    private fun JSONArray.toStringSet(): Set<String> {
+        return buildSet {
+            for (index in 0 until length()) {
+                val value = optString(index)
+
+                if (value.isNotBlank()) {
+                    add(value)
+                }
+            }
+        }
     }
 }
