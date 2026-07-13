@@ -1,10 +1,13 @@
 package com.callover.android.core.realtime.presence
 
+import android.util.Log
 import com.callover.android.core.realtime.RealtimeEventType
+import com.callover.android.core.realtime.RealtimeMessage
+import com.callover.android.core.realtime.RealtimeMessageRouter
 import com.callover.android.core.realtime.SocketManager
 import io.socket.client.Socket
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
@@ -12,54 +15,32 @@ import javax.inject.Singleton
 
 @Singleton
 class PresenceRealtimeDataSource @Inject constructor(
+    private val messageRouter: RealtimeMessageRouter,
     private val socketManager: SocketManager,
 ) {
-    private val _events = MutableSharedFlow<PresenceEvent>(
-        extraBufferCapacity = 64,
-    )
+    val events: Flow<PresenceEvent> = messageRouter.messages
+        .mapNotNull { message ->
+            message.toPresenceEventOrNull()
+        }
 
-    val events: SharedFlow<PresenceEvent> = _events
-
-    private var isListening = false
+    private var isListeningConnectionEvents = false
 
     private var lastRequestedUserIds: List<String> = emptyList()
     private var lastEmittedUserIds: List<String> = emptyList()
 
-    fun startListening() {
-        if (isListening) return
-        isListening = true
+    fun startListeningConnectionEvents() {
+        if (isListeningConnectionEvents) return
+        isListeningConnectionEvents = true
 
         socketManager.on(Socket.EVENT_CONNECT) {
             emitSubscribeIfNeeded(force = true)
         }
-
-        socketManager.on("message") { args ->
-            val message = args.firstOrNull() as? JSONObject ?: return@on
-
-            val type = message.optString("type")
-            val payload = message.optJSONObject("payload") ?: JSONObject()
-
-            when (type) {
-                RealtimeEventType.PresenceInitial.type -> {
-                    handlePresenceInitial(payload)
-                }
-
-                RealtimeEventType.PresenceUserOnline.type -> {
-                    handlePresenceUserOnline(payload)
-                }
-
-                RealtimeEventType.PresenceUserOffline.type -> {
-                    handlePresenceUserOffline(payload)
-                }
-            }
-        }
     }
 
-    fun stopListening() {
-        isListening = false
+    fun stopListeningConnectionEvents() {
+        isListeningConnectionEvents = false
 
         socketManager.off(Socket.EVENT_CONNECT)
-        socketManager.off("message")
 
         lastRequestedUserIds = emptyList()
         lastEmittedUserIds = emptyList()
@@ -83,10 +64,12 @@ class PresenceRealtimeDataSource @Inject constructor(
         force: Boolean = false,
     ) {
         if (lastRequestedUserIds.isEmpty()) {
+            Log.d(TAG, "skip subscribe: empty user ids")
             return
         }
 
         if (!force && lastRequestedUserIds == lastEmittedUserIds) {
+            Log.d(TAG, "skip subscribe: already emitted")
             return
         }
 
@@ -94,60 +77,70 @@ class PresenceRealtimeDataSource @Inject constructor(
             put("userIds", JSONArray(lastRequestedUserIds))
         }
 
+        Log.d(
+            TAG,
+            "emit ${RealtimeEventType.PresenceSubscribe.type}, force=$force, payload=$payload",
+        )
+
         val emitted = socketManager.emit(
             event = RealtimeEventType.PresenceSubscribe.type,
             data = payload,
         )
+
+        Log.d(TAG, "subscribe emitted=$emitted")
 
         if (emitted) {
             lastEmittedUserIds = lastRequestedUserIds
         }
     }
 
-    private fun handlePresenceInitial(
-        payload: JSONObject,
-    ) {
-        val array = payload.optJSONArray("onlineUserIds") ?: JSONArray()
+    private fun RealtimeMessage.toPresenceEventOrNull(): PresenceEvent? {
+        return when (type) {
+            RealtimeEventType.PresenceInitial.type -> {
+                payload.toPresenceInitialOrNull()
+            }
 
-        val onlineUserIds = array.toStringSet()
+            RealtimeEventType.PresenceUserOnline.type -> {
+                payload.toPresenceUserOnlineOrNull()
+            }
 
+            RealtimeEventType.PresenceUserOffline.type -> {
+                payload.toPresenceUserOfflineOrNull()
+            }
 
-        _events.tryEmit(
-            PresenceEvent.Initial(
-                onlineUserIds = onlineUserIds,
-            ),
+            else -> null
+        }
+    }
+
+    private fun JSONObject.toPresenceInitialOrNull(): PresenceEvent.Initial {
+        val array = optJSONArray("onlineUserIds") ?: JSONArray()
+
+        return PresenceEvent.Initial(
+            onlineUserIds = array.toStringSet(),
         )
     }
 
-    private fun handlePresenceUserOnline(
-        payload: JSONObject,
-    ) {
-        val userId = payload.optString("userId")
+    private fun JSONObject.toPresenceUserOnlineOrNull(): PresenceEvent.UserOnline? {
+        val userId = optString("userId")
 
         if (userId.isBlank()) {
-            return
+            return null
         }
 
-        _events.tryEmit(
-            PresenceEvent.UserOnline(
-                userId = userId,
-            ),
+        return PresenceEvent.UserOnline(
+            userId = userId,
         )
     }
 
-    private fun handlePresenceUserOffline(
-        payload: JSONObject,
-    ) {
-        val userId = payload.optString("userId")
+    private fun JSONObject.toPresenceUserOfflineOrNull(): PresenceEvent.UserOffline? {
+        val userId = optString("userId")
 
         if (userId.isBlank()) {
-            return
+            return null
         }
 
-        _events.tryEmit(
-            PresenceEvent.UserOffline(
-                userId = userId,
-            ),
+        return PresenceEvent.UserOffline(
+            userId = userId,
         )
     }
 
@@ -161,5 +154,9 @@ class PresenceRealtimeDataSource @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "CalloverPresence"
     }
 }

@@ -23,6 +23,10 @@ sealed interface SignalingEvent {
         val fromUserId: String,
     ) : SignalingEvent
 
+    data class CallEnd(
+        val fromUserId: String,
+    ) : SignalingEvent
+
     data class CallTimeout(
         val roomId: String,
         val reason: CallTimeoutReason,

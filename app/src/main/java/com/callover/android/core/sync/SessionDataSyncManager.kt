@@ -1,7 +1,9 @@
 package com.callover.android.core.sync
 
+import com.callover.android.core.call_coordinator.CallCoordinator
 import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.data.notifications.NotificationsRepository
+import com.callover.android.core.realtime.RealtimeMessageRouter
 import com.callover.android.core.realtime.SocketManager
 import com.callover.android.core.realtime.presence.PresenceRealtimeDataSource
 import com.callover.android.core.realtime.presence.PresenceRepository
@@ -20,8 +22,10 @@ class SessionDataSyncManager @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val notificationsRepository: NotificationsRepository,
     private val socketManager: SocketManager,
+    private val messageRouter: RealtimeMessageRouter,
     private val presenceRealtimeDataSource: PresenceRealtimeDataSource,
     private val presenceRepository: PresenceRepository,
+    private val callCoordinator: CallCoordinator,
 ) {
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO,
@@ -34,12 +38,17 @@ class SessionDataSyncManager @Inject constructor(
             return
         }
 
+        messageRouter.startListening()
+        presenceRealtimeDataSource.startListeningConnectionEvents()
         socketManager.connect()
-        presenceRealtimeDataSource.startListening()
 
         sessionJob = scope.launch {
             launch {
                 presenceRepository.collectPresenceEvents()
+            }
+
+            launch {
+                callCoordinator.collectSignalingEvents()
             }
 
             launch {
@@ -72,7 +81,10 @@ class SessionDataSyncManager @Inject constructor(
         sessionJob = null
 
         presenceRepository.clear()
-        presenceRealtimeDataSource.stopListening()
+
+        presenceRealtimeDataSource.stopListeningConnectionEvents()
+        messageRouter.stopListening()
+
         socketManager.disconnect()
     }
 
