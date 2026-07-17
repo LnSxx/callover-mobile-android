@@ -55,6 +55,7 @@ class SessionDataSyncManager @Inject constructor(
                 contactsRepository.syncContacts()
                 notificationsRepository.syncPendingReadMarks()
                 notificationsRepository.refreshNotifications()
+                callCoordinator.restoreCurrentRingingCallIfNeeded()
             }
 
             launch {
