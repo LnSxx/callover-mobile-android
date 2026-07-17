@@ -1,11 +1,11 @@
 package com.callover.android.core.realtime.signaling
 
 import android.util.Log
-import com.callover.android.core.domain.models.CallTimeoutReason
-import com.callover.android.core.domain.models.CallType
+import com.callover.android.core.data.calls.mappers.toCallTypeOrNull
 import com.callover.android.core.realtime.RealtimeEventType
 import com.callover.android.core.realtime.RealtimeMessage
 import com.callover.android.core.realtime.RealtimeMessageRouter
+import com.callover.android.core.realtime.signaling.mappers.toCallTimeoutReasonOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.json.JSONObject
@@ -170,22 +170,6 @@ class SignalingRealtimeDataSource @Inject constructor(
             sdpMLineIndex = optInt("sdpMLineIndex"),
             sdpMid = optString("sdpMid").takeIf { it.isNotBlank() },
         )
-    }
-
-    private fun String.toCallTypeOrNull(): CallType? {
-        return when (this) {
-            "audio" -> CallType.Audio
-            "video" -> CallType.Video
-            else -> null
-        }
-    }
-
-    private fun String.toCallTimeoutReasonOrNull(): CallTimeoutReason? {
-        return when (this) {
-            "no_answer" -> CallTimeoutReason.NoAnswer
-            "max_duration" -> CallTimeoutReason.MaxDuration
-            else -> null
-        }
     }
 
     companion object {

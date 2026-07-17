@@ -2,6 +2,7 @@ package com.callover.android.core.network
 
 import com.callover.android.core.data.account.AccountApi
 import com.callover.android.core.data.auth.AuthApi
+import com.callover.android.core.data.calls.CallsApi
 import com.callover.android.core.data.contacts.ContactsApi
 import com.callover.android.core.data.notifications.NotificationsApi
 import com.callover.android.core.data.profile.ProfileApi
@@ -97,5 +98,13 @@ object NetworkModule {
         retrofit: Retrofit,
     ): AccountApi {
         return retrofit.create(AccountApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCallsApi(
+        retrofit: Retrofit,
+    ): CallsApi {
+        return retrofit.create(CallsApi::class.java)
     }
 }
