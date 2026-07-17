@@ -86,4 +86,17 @@
     <string name="block">Block</string>
     <string name="unblock">Unblock</string>
     <string name="delete">Delete</string>
+
+    <string name="incoming_video_call">Incoming video call</string>
+    <string name="incoming_audio_call">Incoming audio call</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+    <string name="calling_three_dots">Calling…</string>
+    <string name="cancel">Cancel</string>
+    <string name="connecting_three_dots">Connecting…</string>
+    <string name="call_active">Active</string>
+    <string name="microphone">Microphone</string>
+    <string name="end_call">End call</string>
+    <string name="video_call">Video call</string>
+    <string name="camera">Camera</string>
 </resources>

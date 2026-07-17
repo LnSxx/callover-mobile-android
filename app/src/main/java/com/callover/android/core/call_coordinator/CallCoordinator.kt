@@ -102,8 +102,7 @@ class CallCoordinator @Inject constructor(
             return
         }
 
-        // later send real SDP offer:
-        // signalingService.sendOffer(targetUserId, offer.description, type)
+         signalingService.sendOffer(targetUserId, dummySdp, type)
     }
 
     suspend fun acceptCall() {
@@ -175,6 +174,14 @@ class CallCoordinator @Inject constructor(
         // foregroundService.stop()
         // telecomAdapter.disconnect()
         callStore.reset()
+    }
+
+    fun toggleMic() {
+
+    }
+
+    fun toggleCamera() {
+
     }
 
     private suspend fun handleSignalingEvent(

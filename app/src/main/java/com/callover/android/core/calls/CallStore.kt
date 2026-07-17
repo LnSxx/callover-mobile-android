@@ -68,6 +68,8 @@ class CallStore @Inject constructor() {
             peerUserId = incoming.fromUserId,
             type = incoming.type,
             roomId = incoming.roomId,
+            isMicEnabled = true,
+            isCameraEnabled = true,
         )
 
         return incoming

@@ -1,5 +1,6 @@
 package com.callover.android.core.sync
 
+import android.util.Log
 import com.callover.android.core.call_coordinator.CallCoordinator
 import com.callover.android.core.data.contacts.ContactsRepository
 import com.callover.android.core.data.notifications.NotificationsRepository
@@ -38,20 +39,24 @@ class SessionDataSyncManager @Inject constructor(
             return
         }
 
+        Log.d(TAG, "start session sync")
+
         messageRouter.startListening()
         presenceRealtimeDataSource.startListeningConnectionEvents()
-        socketManager.connect()
 
         sessionJob = scope.launch {
             launch {
+                Log.d(TAG, "start collecting presence events")
                 presenceRepository.collectPresenceEvents()
             }
 
             launch {
+                Log.d(TAG, "start collecting signaling events")
                 callCoordinator.collectSignalingEvents()
             }
 
             launch {
+                Log.d(TAG, "start initial sync")
                 contactsRepository.syncContacts()
                 notificationsRepository.syncPendingReadMarks()
                 notificationsRepository.refreshNotifications()
@@ -59,8 +64,8 @@ class SessionDataSyncManager @Inject constructor(
             }
 
             launch {
-                // TODO: Implement algorithm of defining contact of user's interest (5-10)
-                //  and initially subscribe only to them. For now subscribe to all user contacts.
+                Log.d(TAG, "start observing contacts for presence subscriptions")
+
                 contactsRepository.observeContacts()
                     .map { contacts ->
                         contacts.map { contact ->
@@ -69,12 +74,16 @@ class SessionDataSyncManager @Inject constructor(
                     }
                     .distinctUntilChanged()
                     .collect { userIds ->
+                        Log.d(TAG, "presence contacts userIds=$userIds")
+
                         presenceRealtimeDataSource.subscribeToUsers(
                             userIds = userIds,
                         )
                     }
             }
         }
+
+        socketManager.connect()
     }
 
     fun stop() {
@@ -95,5 +104,9 @@ class SessionDataSyncManager @Inject constructor(
             notificationsRepository.syncPendingReadMarks()
             notificationsRepository.refreshNotifications()
         }
+    }
+
+    companion object {
+        private const val TAG = "SessionDataSync"
     }
 }

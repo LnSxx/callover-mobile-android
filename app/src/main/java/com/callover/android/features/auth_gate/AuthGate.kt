@@ -5,8 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.core.auth.AuthState
 import com.callover.android.features.auth_flow.AuthFlow
-import com.callover.android.features.main.MainScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.callover.android.features.authenticated_app.AuthenticatedApp
 
 @Composable
 fun AuthGate(
@@ -24,7 +24,7 @@ fun AuthGate(
         }
 
         is AuthState.Authenticated -> {
-            MainScreen()
+            AuthenticatedApp()
         }
     }
 }

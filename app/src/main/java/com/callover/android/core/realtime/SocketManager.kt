@@ -14,28 +14,28 @@ class SocketManager @Inject constructor(
 ) {
     private var socket: Socket? = null
 
-    fun connect() {
-        if (socket?.connected() == true) {
-            return
+    private fun getOrCreateSocket(): Socket {
+        val existingSocket = socket
+
+        if (existingSocket != null) {
+            return existingSocket
         }
 
-        val options = IO.Options.builder()
-            .setPath("/socket.io")
-            .setTransports(arrayOf("websocket"))
-            .setForceNew(false)
-            .setReconnection(true)
-            .setReconnectionAttempts(Int.MAX_VALUE)
-            .setReconnectionDelay(1_000)
-            .setReconnectionDelayMax(10_000)
-            .build()
+        val options = IO.Options().apply {
+            path = "/socket.io"
+            transports = arrayOf("websocket")
+            reconnection = true
+            reconnectionAttempts = Int.MAX_VALUE
+            reconnectionDelay = 1_000
+            reconnectionDelayMax = 10_000
 
-        options.callFactory = okHttpClient
-        options.webSocketFactory = okHttpClient
+            callFactory = okHttpClient
+            webSocketFactory = okHttpClient
+        }
 
-        val baseUrl = ApiConfig.BASE_URL.trimEnd('/')
-        val socketUrl = "$baseUrl/events"
+        val socketUrl = "${ApiConfig.BASE_URL.trimEnd('/')}/events"
 
-        socket = IO.socket(socketUrl, options).apply {
+        val newSocket = IO.socket(socketUrl, options).apply {
             on(Socket.EVENT_CONNECT) {
                 Log.d(TAG, "Socket connected: ${id()}")
             }
@@ -47,15 +47,42 @@ class SocketManager @Inject constructor(
             on(Socket.EVENT_CONNECT_ERROR) { args ->
                 Log.e(TAG, "Socket connect error: ${args.joinToString()}")
             }
-
-            connect()
         }
+
+        socket = newSocket
+
+        return newSocket
+    }
+
+    fun connect() {
+        val currentSocket = getOrCreateSocket()
+
+        if (currentSocket.connected()) {
+            return
+        }
+
+        currentSocket.connect()
     }
 
     fun disconnect() {
         socket?.disconnect()
-        socket?.off()
-        socket = null
+    }
+
+    fun on(
+        event: String,
+        listener: (Array<Any>) -> Unit,
+    ) {
+        val currentSocket = getOrCreateSocket()
+
+        Log.d(TAG, "register listener event=$event")
+
+        currentSocket.on(event) { args ->
+            listener(args)
+        }
+    }
+
+    fun off(event: String) {
+        socket?.off(event)
     }
 
     fun emit(
@@ -65,28 +92,19 @@ class SocketManager @Inject constructor(
         val currentSocket = socket
 
         if (currentSocket == null) {
+            Log.d(TAG, "emit skipped, socket is null, event=$event")
             return false
         }
 
         if (!currentSocket.connected()) {
+            Log.d(TAG, "emit skipped, socket not connected, event=$event")
             return false
         }
 
+        Log.d(TAG, "emit event=$event data=$data")
         currentSocket.emit(event, data)
+
         return true
-    }
-
-    fun on(
-        event: String,
-        listener: (Array<Any>) -> Unit,
-    ) {
-        socket?.on(event) { args ->
-            listener(args)
-        }
-    }
-
-    fun off(event: String) {
-        socket?.off(event)
     }
 
     companion object {

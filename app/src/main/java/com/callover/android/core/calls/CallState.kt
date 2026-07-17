@@ -23,6 +23,8 @@ sealed interface CallState {
         val peerUserId: String,
         val type: CallType,
         val roomId: String?,
+        val isMicEnabled: Boolean,
+        val isCameraEnabled: Boolean,
     ) : CallState
 
     data class Active(

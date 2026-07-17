@@ -18,6 +18,7 @@ class SignalingRealtimeDataSource @Inject constructor(
 ) {
     val events: Flow<SignalingEvent> = messageRouter.messages
         .mapNotNull { message ->
+            Log.d(TAG, "received router message type=${message.type} payload=${message.payload}")
             message.toSignalingEventOrNull()
         }
 
@@ -51,7 +52,10 @@ class SignalingRealtimeDataSource @Inject constructor(
                 payload.toCallIceCandidateOrNull()
             }
 
-            else -> null
+            else -> {
+                Log.d(TAG, "ignored realtime message type=$type")
+                null
+            }
         }
     }
 
@@ -173,6 +177,6 @@ class SignalingRealtimeDataSource @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "CalloverSignaling"
+        private const val TAG = "Signaling"
     }
 }
