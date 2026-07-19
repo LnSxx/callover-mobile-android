@@ -23,10 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.calls.CallState
+import com.callover.android.core.domain.models.CallDirection
+import com.callover.android.core.domain.models.CallType
 import com.callover.android.ui.components.CallCircleButton
+import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
 fun AudioCallScreen(
@@ -62,18 +66,9 @@ fun AudioCallScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(112.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Text(
                     text = contactName.ifBlank { peerUserId },
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
                 )
 
@@ -112,5 +107,54 @@ fun AudioCallScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(
+    name = "Audio call active",
+    showBackground = true,
+    device = "spec:width=411dp,height=691dp",
+)
+@Composable
+fun AudioCallScreenPreview() {
+    CalloverMobileTheme {
+        AudioCallScreen(
+            callState = CallState.Active(
+                peerUserId = "user-id",
+                type = CallType.Audio,
+                roomId = "room-id",
+                isMicEnabled = true,
+                isCameraEnabled = false,
+            ),
+            contactName = "Catherine the Great",
+            onEndClick = {  },
+            onToggleMicClick = {  },
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Preview(
+    name = "Audio call connecting",
+    showBackground = true,
+    device = "spec:width=411dp,height=691dp",
+)
+@Composable
+fun AudioCallScreenConnectingPreview() {
+    CalloverMobileTheme {
+        AudioCallScreen(
+            callState = CallState.Connecting(
+                peerUserId = "user-id",
+                type = CallType.Audio,
+                roomId = "room-id",
+                direction = CallDirection.Incoming,
+                isMicEnabled = true,
+                isCameraEnabled = false,
+            ),
+            contactName = "Catherine the Great",
+            onEndClick = {  },
+            onToggleMicClick = {  },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

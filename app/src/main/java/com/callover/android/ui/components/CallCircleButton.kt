@@ -23,33 +23,19 @@ fun CallCircleButton(
     containerColor: Color,
     contentColor: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    FilledIconButton(
+        onClick = onClick,
+        modifier = Modifier.size(64.dp),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
     ) {
-        FilledIconButton(
-            onClick = onClick,
-            modifier = Modifier.size(64.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
-            ),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(32.dp),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = contentColor,
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(32.dp),
         )
     }
 }
