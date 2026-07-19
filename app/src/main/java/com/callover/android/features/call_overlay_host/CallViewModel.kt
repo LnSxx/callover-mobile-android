@@ -5,24 +5,32 @@ import androidx.lifecycle.viewModelScope
 import com.callover.android.core.call_coordinator.CallCoordinator
 import com.callover.android.core.calls.CallState
 import com.callover.android.core.data.contacts.ContactsRepository
+import com.callover.android.core.webrtc.WebRtcEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.webrtc.EglBase
 import javax.inject.Inject
 
 @HiltViewModel
 class CallViewModel @Inject constructor(
     private val callCoordinator: CallCoordinator,
     private val contactsRepository: ContactsRepository,
+    private val webRtcEngine: WebRtcEngine,
 ) : ViewModel() {
+    val eglBaseContext: EglBase.Context
+        get() = webRtcEngine.eglBaseContext
+
+
     val uiState: StateFlow<CallUiState> =
         combine(
             callCoordinator.callState,
             contactsRepository.observeContacts(),
-        ) { callState, contacts ->
+            webRtcEngine.mediaState,
+        ) { callState, contacts, mediaState ->
             val peerUserId = callState.peerUserIdOrNull()
 
             val contact = contacts.firstOrNull { contact ->
@@ -31,17 +39,15 @@ class CallViewModel @Inject constructor(
 
             CallUiState(
                 callState = callState,
-                peerDisplayName = contact?.alias
-                    ?: peerUserId
-                    ?: "",
+                peerDisplayName = contact?.alias ?: peerUserId.orEmpty(),
                 peerUserId = peerUserId,
+                mediaState = mediaState,
             )
-        }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = CallUiState(),
-            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = CallUiState(),
+        )
 
     fun acceptCall() {
         viewModelScope.launch {
@@ -73,6 +79,12 @@ class CallViewModel @Inject constructor(
 
     fun toggleCamera() {
         callCoordinator.toggleCamera()
+    }
+
+    fun onMediaPermissionDenied() {
+        viewModelScope.launch {
+            callCoordinator.rejectBecauseMediaPermissionDenied()
+        }
     }
 
     private fun CallState.peerUserIdOrNull(): String? {

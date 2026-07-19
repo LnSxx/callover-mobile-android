@@ -1,5 +1,6 @@
 package com.callover.android.core.calls
 
+import com.callover.android.core.domain.models.CallDirection
 import com.callover.android.core.domain.models.CallType
 import com.callover.android.core.domain.models.PendingIceCandidate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,9 +28,7 @@ class CallStore @Inject constructor() {
         type: CallType,
         roomId: String? = null,
     ): Boolean {
-        if (isBusy) {
-            return false
-        }
+        if (isBusy) return false
 
         _state.value = CallState.Incoming(
             fromUserId = fromUserId,
@@ -47,9 +46,7 @@ class CallStore @Inject constructor() {
         type: CallType,
         roomId: String? = null,
     ): Boolean {
-        if (isBusy) {
-            return false
-        }
+        if (isBusy) return false
 
         _state.value = CallState.Outgoing(
             toUserId = toUserId,
@@ -68,30 +65,22 @@ class CallStore @Inject constructor() {
             peerUserId = incoming.fromUserId,
             type = incoming.type,
             roomId = incoming.roomId,
+            direction = CallDirection.Incoming,
             isMicEnabled = true,
-            isCameraEnabled = true,
+            isCameraEnabled = incoming.type == CallType.Video,
         )
 
         return incoming
     }
 
-    fun markOutgoingAccepted(
+    fun getOutgoingCallForAnswer(
         fromUserId: String,
-        sdp: String,
     ): CallState.Outgoing? {
         val outgoing = _state.value as? CallState.Outgoing ?: return null
 
         if (outgoing.toUserId != fromUserId) {
             return null
         }
-
-        _state.value = CallState.Active(
-            peerUserId = fromUserId,
-            type = outgoing.type,
-            roomId = outgoing.roomId,
-            isMicEnabled = true,
-            isCameraEnabled = outgoing.type == CallType.Video,
-        )
 
         return outgoing
     }
@@ -127,17 +116,59 @@ class CallStore @Inject constructor() {
             .add(candidate)
     }
 
+    fun savePendingIceCandidates(
+        candidates: List<PendingIceCandidate>,
+    ) {
+        candidates.forEach(::savePendingIce)
+    }
+
     fun drainPendingIce(
         fromUserId: String,
     ): List<PendingIceCandidate> {
         return pendingIceByUserId.remove(fromUserId).orEmpty()
     }
 
-    fun savePendingIceCandidates(
-        candidates: List<PendingIceCandidate>,
-    ) {
-        candidates.forEach { candidate ->
-            savePendingIce(candidate)
+    fun setMicEnabled(enabled: Boolean) {
+        _state.value = when (val state = _state.value) {
+            is CallState.Connecting -> {
+                state.copy(isMicEnabled = enabled)
+            }
+
+            is CallState.Active -> {
+                state.copy(isMicEnabled = enabled)
+            }
+
+            else -> state
+        }
+    }
+
+    fun setCameraEnabled(enabled: Boolean) {
+        _state.value = when (val state = _state.value) {
+            is CallState.Connecting -> {
+                state.copy(isCameraEnabled = enabled)
+            }
+
+            is CallState.Active -> {
+                state.copy(isCameraEnabled = enabled)
+            }
+
+            else -> state
+        }
+    }
+
+    fun currentMicEnabledOrNull(): Boolean? {
+        return when (val state = _state.value) {
+            is CallState.Connecting -> state.isMicEnabled
+            is CallState.Active -> state.isMicEnabled
+            else -> null
+        }
+    }
+
+    fun currentCameraEnabledOrNull(): Boolean? {
+        return when (val state = _state.value) {
+            is CallState.Connecting -> state.isCameraEnabled
+            is CallState.Active -> state.isCameraEnabled
+            else -> null
         }
     }
 }

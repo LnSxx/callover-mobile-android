@@ -25,12 +25,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.calls.CallState
+import com.callover.android.features.call_overlay_host.components.WebRtcVideoRenderer
 import com.callover.android.ui.components.CallCircleButton
+import org.webrtc.EglBase
+import org.webrtc.VideoTrack
 
 @Composable
 fun VideoCallScreen(
     callState: CallState,
     contactName: String,
+    remoteVideoTrack: VideoTrack?,
+    localVideoTrack: VideoTrack?,
+    eglBaseContext: EglBase.Context,
     onEndClick: () -> Unit,
     onToggleMicClick: () -> Unit,
     onToggleCameraClick: () -> Unit,
@@ -53,35 +59,22 @@ fun VideoCallScreen(
             .fillMaxSize()
             .background(Color.Black),
     ) {
-        Box(
+        WebRtcVideoRenderer(
+            videoTrack = remoteVideoTrack,
+            eglBaseContext = eglBaseContext,
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = contactName.ifBlank { stringResource(R.string.video_call) },
-                color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-            )
-        }
+            mirror = false,
+        )
 
-        Box(
+        WebRtcVideoRenderer(
+            videoTrack = localVideoTrack,
+            eglBaseContext = eglBaseContext,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(24.dp)
-                .size(width = 120.dp, height = 180.dp)
-                .background(
-                    color = Color.DarkGray,
-                    shape = MaterialTheme.shapes.medium,
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = "Local video",
-                color = Color.White,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+                .size(width = 120.dp, height = 180.dp),
+            mirror = true,
+        )
 
         Row(
             modifier = Modifier

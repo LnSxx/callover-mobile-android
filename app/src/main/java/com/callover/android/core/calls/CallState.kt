@@ -1,5 +1,6 @@
 package com.callover.android.core.calls
 
+import com.callover.android.core.domain.models.CallDirection
 import com.callover.android.core.domain.models.CallType
 
 sealed interface CallState {
@@ -23,6 +24,7 @@ sealed interface CallState {
         val peerUserId: String,
         val type: CallType,
         val roomId: String?,
+        val direction: CallDirection,
         val isMicEnabled: Boolean,
         val isCameraEnabled: Boolean,
     ) : CallState

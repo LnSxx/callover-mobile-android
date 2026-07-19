@@ -7,4 +7,5 @@ enum class CallEndReason {
     Cancelled,
     Timeout,
     Failed,
+    PermissionDenied,
 }

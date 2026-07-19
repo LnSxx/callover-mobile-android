@@ -64,6 +64,9 @@ android {
         compose = true
         buildConfig = true
     }
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
 }
 
 kotlin {
@@ -104,6 +107,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.socketio.client)
+    implementation(libs.webrtc.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
