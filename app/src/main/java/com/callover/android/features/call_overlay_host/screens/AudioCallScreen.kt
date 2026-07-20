@@ -1,5 +1,6 @@
 package com.callover.android.features.call_overlay_host.screens
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,13 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CallEnd
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,14 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.calls.CallState
 import com.callover.android.core.domain.models.CallDirection
 import com.callover.android.core.domain.models.CallType
+import com.callover.android.features.call_overlay_host.components.CallStatusText
 import com.callover.android.ui.components.CallCircleButton
 import com.callover.android.ui.theme.CalloverMobileTheme
+import java.time.Instant
 
 @Composable
 fun AudioCallScreen(
@@ -64,24 +65,27 @@ fun AudioCallScreen(
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(modifier = Modifier.height(48.dp))
+
                 Text(
                     text = contactName.ifBlank { peerUserId },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .basicMarquee(),
                     style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = when (callState) {
-                        is CallState.Connecting -> stringResource(R.string.connecting_three_dots)
-                        is CallState.Active -> stringResource(R.string.call_active)
-                        else -> ""
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                CallStatusText(
+                    callState = callState,
                 )
             }
 
@@ -123,6 +127,7 @@ fun AudioCallScreenPreview() {
                 peerUserId = "user-id",
                 type = CallType.Audio,
                 roomId = "room-id",
+                startedAt = Instant.now(),
                 isMicEnabled = true,
                 isCameraEnabled = false,
             ),
@@ -151,7 +156,7 @@ fun AudioCallScreenConnectingPreview() {
                 isMicEnabled = true,
                 isCameraEnabled = false,
             ),
-            contactName = "Catherine the Great",
+            contactName = "Catherine the Great Empress of all Russia and other other other...",
             onEndClick = {  },
             onToggleMicClick = {  },
             modifier = Modifier.fillMaxSize(),

@@ -20,6 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.webrtc.AudioTrack
 import org.webrtc.DataChannel
 import org.webrtc.IceCandidate
@@ -47,6 +49,9 @@ class CallCoordinator @Inject constructor(
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO,
     )
+
+    private val cleanupMutex = Mutex()
+    private var isCleaningUp = false
 
     suspend fun collectSignalingEvents() {
         signalingRealtimeDataSource.events.collect { event ->
@@ -410,7 +415,7 @@ class CallCoordinator @Inject constructor(
         }
     }
 
-    private fun handleCallDecline(
+    private suspend fun handleCallDecline(
         event: SignalingEvent.CallDecline,
     ) {
         val outgoing = callStore.currentState as? CallState.Outgoing ?: return
@@ -424,7 +429,7 @@ class CallCoordinator @Inject constructor(
         cleanupCurrentCall()
     }
 
-    private fun handleCallCancel(
+    private suspend fun handleCallCancel(
         event: SignalingEvent.CallCancel,
     ) {
         val peerUserId = when (val state = callStore.currentState) {
@@ -441,7 +446,7 @@ class CallCoordinator @Inject constructor(
         cleanupCurrentCall()
     }
 
-    private fun handleCallEnd(
+    private suspend fun handleCallEnd(
         event: SignalingEvent.CallEnd,
     ) {
         val currentPeerUserId = when (val state = callStore.currentState) {
@@ -461,7 +466,7 @@ class CallCoordinator @Inject constructor(
         cleanupCurrentCall()
     }
 
-    private fun handleCallTimeout(
+    private suspend fun handleCallTimeout(
         event: SignalingEvent.CallTimeout,
     ) {
         callStore.setEnded(CallEndReason.Timeout)
@@ -509,7 +514,7 @@ class CallCoordinator @Inject constructor(
         }
     }
 
-    private fun failCurrentCall(
+    private suspend fun failCurrentCall(
         error: Throwable? = null,
     ) {
         if (error != null) {
@@ -520,14 +525,25 @@ class CallCoordinator @Inject constructor(
         cleanupCurrentCall()
     }
 
-    private fun cleanupCurrentCall() {
-        webRtcEngine.release()
+    private suspend fun cleanupCurrentCall() {
+        cleanupMutex.withLock {
+            if (isCleaningUp) {
+                return
+            }
 
-        peerConnection?.close()
-        peerConnection?.dispose()
-        peerConnection = null
+            isCleaningUp = true
 
-        callStore.reset()
+            try {
+                peerConnection?.close()
+                peerConnection?.dispose()
+                peerConnection = null
+
+                webRtcEngine.release()
+                callStore.reset()
+            } finally {
+                isCleaningUp = false
+            }
+        }
     }
 
     private fun createPeerConnectionObserver(

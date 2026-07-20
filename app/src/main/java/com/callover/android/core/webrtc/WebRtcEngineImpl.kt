@@ -293,9 +293,6 @@ class WebRtcEngineImpl @Inject constructor(
     override fun release() {
         _mediaState.value = WebRtcMediaState()
 
-        remoteAudioTrack = null
-        remoteVideoTrack = null
-
         try {
             localAudioTrack?.setEnabled(false)
         } catch (_: Throwable) {
@@ -320,12 +317,6 @@ class WebRtcEngineImpl @Inject constructor(
         cameraCapturer = null
 
         try {
-            localVideoTrack?.dispose()
-        } catch (_: Throwable) {
-        }
-        localVideoTrack = null
-
-        try {
             videoSource?.dispose()
         } catch (_: Throwable) {
         }
@@ -338,16 +329,15 @@ class WebRtcEngineImpl @Inject constructor(
         surfaceTextureHelper = null
 
         try {
-            localAudioTrack?.dispose()
-        } catch (_: Throwable) {
-        }
-        localAudioTrack = null
-
-        try {
             audioSource?.dispose()
         } catch (_: Throwable) {
         }
         audioSource = null
+
+        localAudioTrack = null
+        localVideoTrack = null
+        remoteAudioTrack = null
+        remoteVideoTrack = null
     }
 
     companion object {

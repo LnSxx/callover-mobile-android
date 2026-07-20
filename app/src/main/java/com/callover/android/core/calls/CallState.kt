@@ -2,6 +2,7 @@ package com.callover.android.core.calls
 
 import com.callover.android.core.domain.models.CallDirection
 import com.callover.android.core.domain.models.CallType
+import java.time.Instant
 
 sealed interface CallState {
     data object Idle : CallState
@@ -33,6 +34,7 @@ sealed interface CallState {
         val peerUserId: String,
         val type: CallType,
         val roomId: String?,
+        val startedAt: Instant,
         val isMicEnabled: Boolean,
         val isCameraEnabled: Boolean,
     ) : CallState

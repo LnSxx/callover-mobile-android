@@ -46,37 +46,45 @@ fun WebRtcVideoRenderer(
     )
 
     DisposableEffect(videoTrack, renderer) {
-        Log.d(
-            TAG,
-            "effect videoTrack=$videoTrack renderer=$renderer trackId=${videoTrack?.id()}",
-        )
+        val trackId = try {
+            videoTrack?.id()
+        } catch (_: Throwable) {
+            null
+        }
 
         if (videoTrack != null) {
-            Log.d(
-                TAG,
-                "addSink trackId=${videoTrack.id()} renderer=$renderer",
-            )
-            videoTrack.addSink(renderer)
+            try {
+                Log.d(TAG, "addSink trackId=$trackId renderer=$renderer")
+                videoTrack.addSink(renderer)
+            } catch (error: Throwable) {
+                Log.d(TAG, "Failed to addSink trackId=$trackId", error)
+            }
         }
 
         onDispose {
             if (videoTrack != null) {
-                Log.d(
-                    TAG,
-                    "removeSink trackId=${videoTrack.id()} renderer=$renderer",
-                )
-                videoTrack.removeSink(renderer)
+                try {
+                    Log.d(TAG, "removeSink trackId=$trackId renderer=$renderer")
+                    videoTrack.removeSink(renderer)
+                } catch (error: Throwable) {
+                    Log.d(
+                        TAG,
+                        "Failed to removeSink trackId=$trackId; track was probably already disposed",
+                        error,
+                    )
+                }
             }
         }
     }
 
     DisposableEffect(renderer) {
         onDispose {
-            Log.d(
-                TAG,
-                "renderer release renderer=$renderer",
-            )
-            renderer.release()
+            try {
+                Log.d(TAG, "renderer release renderer=$renderer")
+                renderer.release()
+            } catch (error: Throwable) {
+                Log.d(TAG, "Failed to release renderer", error)
+            }
         }
     }
 }

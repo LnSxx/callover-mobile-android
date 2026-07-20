@@ -6,6 +6,7 @@ import com.callover.android.core.domain.models.PendingIceCandidate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -94,6 +95,7 @@ class CallStore @Inject constructor() {
             peerUserId = peerUserId,
             type = type,
             roomId = roomId,
+            startedAt = Instant.now(),
             isMicEnabled = true,
             isCameraEnabled = type == CallType.Video,
         )
