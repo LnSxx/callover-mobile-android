@@ -17,6 +17,8 @@ fun ContactsList(
     contacts: List<Contact>,
     onlineUserIds: Set<String>,
     onContactClick: (contactId: String) -> Unit,
+    onAudioClick: (peerUserId: String) -> Unit,
+    onVideoClick: (peerUserId: String) -> Unit,
 ) {
     val groupedContacts = remember(contacts) {
         val collator = Collator.getInstance(Locale.getDefault())
@@ -47,6 +49,12 @@ fun ContactsList(
                     isOnline = isOnline,
                     onTap = {
                         onContactClick(contact.id)
+                    },
+                    onAudioCallTap = {
+                        onAudioClick(contact.contactUserId)
+                    },
+                    onVideoCallTap = {
+                        onVideoClick(contact.contactUserId)
                     }
                 )
             }

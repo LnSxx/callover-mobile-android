@@ -1,13 +1,16 @@
 package com.callover.android.features.contacts.components
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,17 +18,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.domain.models.Contact
-import com.callover.android.ui.components.AccountIdBadge
 
 @Composable
 fun ContactListItem(
     contact: Contact,
     isOnline: Boolean,
     onTap: (Contact) -> Unit,
+    onAudioCallTap: (Contact) -> Unit,
+    onVideoCallTap: (Contact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -38,7 +42,7 @@ fun ContactListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(
@@ -51,34 +55,41 @@ fun ContactListItem(
                 },
             )
 
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = contact.alias.takeIf { it.isNotBlank() }
-                            ?: contact.contactUserId,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
+            Text(
+                text = contact.alias,
+                modifier = Modifier
+                    .weight(1f)
+                    .basicMarquee(),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Clip,
+            )
 
-                    if (isOnline) {
-                        Text(
-                            text = stringResource(R.string.online),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontStyle = FontStyle.Italic,
-                            ),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FilledTonalIconButton(
+                    onClick = {
+                        onAudioCallTap(contact)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Call,
+                        contentDescription = stringResource(R.string.audio_call),
+                    )
                 }
 
-                AccountIdBadge(
-                    accountId = contact.contactUserId,
-                )
+                FilledTonalIconButton(
+                    onClick = {
+                        onVideoCallTap(contact)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Videocam,
+                        contentDescription = stringResource(R.string.video_call),
+                    )
+                }
             }
         }
     }

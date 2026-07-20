@@ -48,6 +48,8 @@ fun OutgoingCallScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(modifier = Modifier.height(48.dp))
+
                 Text(
                     text = contactName.ifBlank { callState.toUserId },
                     modifier = Modifier

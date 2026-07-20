@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callover.android.R
 import com.callover.android.core.domain.models.Contact
 import com.callover.android.features.contact_details.components.ContactActions
+import com.callover.android.features.contact_details.components.ContactCallActions
 import com.callover.android.features.contact_details.components.ContactInfoCard
 import com.callover.android.features.create_contact.CreateContactEvent
 import com.callover.android.ui.components.LabeledDivider
@@ -84,6 +85,8 @@ fun ContactDetailsScreen(
         onToggleIsFavouriteClick = viewModel::toggleFavourite,
         onToggleIsMutedClick = viewModel::toggleMuted,
         onToggleIsBlockedClick = viewModel::toggleBlocked,
+        onAudioCallClick = viewModel::startAudioCall,
+        onVideoCallClick = viewModel::startVideoCall,
         onDeleteClick = viewModel::deleteContact,
     )
 }
@@ -97,6 +100,8 @@ fun ContactDetailsScreenContent(
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
     onToggleIsBlockedClick: () -> Unit,
+    onAudioCallClick: () -> Unit,
+    onVideoCallClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -203,6 +208,8 @@ fun ContactDetailsScreenContent(
                 ContactDetailsContent(
                     contact = uiState.contact,
                     isOnline = uiState.isOnline,
+                    onAudioCallClick = onAudioCallClick,
+                    onVideoCallClick = onVideoCallClick,
                     onEditNoteClick = onEditNoteClick,
                     onToggleIsFavouriteClick = onToggleIsFavouriteClick,
                     onToggleIsMutedClick = onToggleIsMutedClick,
@@ -219,6 +226,8 @@ fun ContactDetailsScreenContent(
 private fun ContactDetailsContent(
     contact: Contact,
     isOnline: Boolean,
+    onAudioCallClick: () -> Unit,
+    onVideoCallClick: () -> Unit,
     onEditNoteClick: () -> Unit,
     onToggleIsFavouriteClick: () -> Unit,
     onToggleIsMutedClick: () -> Unit,
@@ -238,6 +247,13 @@ private fun ContactDetailsContent(
             isBlocked = contact.isBlocked,
             isMuted = contact.isMuted,
             isOnline = isOnline,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ContactCallActions(
+            onAudioCallClick = onAudioCallClick,
+            onVideoCallClick = onVideoCallClick,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -337,6 +353,8 @@ fun ContactDetailsScreenPreview() {
             onToggleIsBlockedClick = {},
             onToggleIsMutedClick = {},
             onToggleIsFavouriteClick = {},
+            onAudioCallClick = {},
+            onVideoCallClick = {},
             onDeleteClick = {},
         )
     }

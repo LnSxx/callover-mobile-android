@@ -98,5 +98,6 @@
     <string name="microphone">Microphone</string>
     <string name="end_call">End call</string>
     <string name="video_call">Video call</string>
+    <string name="audio_call">Audio call</string>
     <string name="camera">Camera</string>
 </resources>

@@ -2,7 +2,9 @@ package com.callover.android.features.contacts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.callover.android.core.call_coordinator.CallCoordinator
 import com.callover.android.core.data.contacts.ContactsRepository
+import com.callover.android.core.domain.models.CallType
 import com.callover.android.core.network.ApiError
 import com.callover.android.core.network.ApiResult
 import com.callover.android.core.realtime.presence.PresenceRepository
@@ -19,6 +21,7 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val presenceRepository: PresenceRepository,
+    private val callCoordinator: CallCoordinator,
 ) : ViewModel() {
     private val screenState = MutableStateFlow(
         ContactsScreenState(
@@ -70,6 +73,24 @@ class ContactsViewModel @Inject constructor(
                     errorMessage = result.errorMessageOrNull(),
                 )
             }
+        }
+    }
+
+    fun startAudioCall(peerUserId: String) {
+        viewModelScope.launch {
+            callCoordinator.startOutgoingCall(
+                targetUserId = peerUserId,
+                type = CallType.Audio,
+            )
+        }
+    }
+
+    fun startVideoCall(peerUserId: String) {
+        viewModelScope.launch {
+            callCoordinator.startOutgoingCall(
+                targetUserId = peerUserId,
+                type = CallType.Video,
+            )
         }
     }
 }

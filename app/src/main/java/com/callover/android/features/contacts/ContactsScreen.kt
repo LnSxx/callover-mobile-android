@@ -20,7 +20,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,6 +47,8 @@ fun ContactsScreen(
     ContactsScreenContent(
         onCreateContactClick = onCreateContactClick,
         onContactClick = onContactClick,
+        onAudioClick = viewModel::startAudioCall,
+        onVideoClick = viewModel::startVideoCall,
         modifier = modifier,
         uiState = uiState,
     )
@@ -59,6 +60,8 @@ private fun ContactsScreenContent(
     uiState: ContactsUiState,
     onCreateContactClick: () -> Unit,
     onContactClick: (contactId: String) -> Unit,
+    onAudioClick: (peerUserId: String) -> Unit,
+    onVideoClick: (peerUserId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -114,6 +117,8 @@ private fun ContactsScreenContent(
                     contacts = uiState.contacts,
                     onlineUserIds = uiState.onlineUserIds,
                     onContactClick = onContactClick,
+                    onAudioClick = onAudioClick,
+                    onVideoClick = onVideoClick,
                 )
             }
 
@@ -135,6 +140,8 @@ fun ContactsScreenPreview() {
         ContactsScreenContent(
             onCreateContactClick = {},
             onContactClick = { _ -> },
+            onAudioClick = { _ -> },
+            onVideoClick = { _ -> },
             uiState = ContactsUiState(
                 contacts = emptyList(),
                 isSyncing = false,
