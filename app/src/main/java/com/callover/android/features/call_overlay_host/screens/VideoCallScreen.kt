@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.calls.CallState
 import com.callover.android.core.domain.models.CallType
+import com.callover.android.features.call_overlay_host.components.CallStatusText
 import com.callover.android.features.call_overlay_host.components.WebRtcVideoRenderer
 import com.callover.android.ui.components.CallCircleButton
 import com.callover.android.ui.theme.CalloverMobileTheme
@@ -145,37 +147,47 @@ private fun VideoCallScreenContent(
             smallVideoContent()
         }
 
-        Row(
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 40.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            CallCircleButton(
-                icon = if (isMicEnabled) Icons.Default.Mic else Icons.Default.MicOff,
-                label = stringResource(R.string.microphone),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                onClick = onToggleMicClick,
+            CallStatusText(
+                callState = callState,
             )
 
-            CallCircleButton(
-                icon = if (isCameraEnabled) Icons.Default.Videocam else Icons.Default.VideocamOff,
-                label = stringResource(R.string.camera),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                onClick = onToggleCameraClick,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 40.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CallCircleButton(
+                    icon = if (isMicEnabled) Icons.Default.Mic else Icons.Default.MicOff,
+                    label = stringResource(R.string.microphone),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    onClick = onToggleMicClick,
+                )
 
-            CallCircleButton(
-                icon = Icons.Default.CallEnd,
-                label = stringResource(R.string.end_call),
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-                onClick = onEndClick,
-            )
+                CallCircleButton(
+                    icon = if (isCameraEnabled) Icons.Default.Videocam else Icons.Default.VideocamOff,
+                    label = stringResource(R.string.camera),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    onClick = onToggleCameraClick,
+                )
+
+                CallCircleButton(
+                    icon = Icons.Default.CallEnd,
+                    label = stringResource(R.string.end_call),
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                    onClick = onEndClick,
+                )
+            }
         }
     }
 }

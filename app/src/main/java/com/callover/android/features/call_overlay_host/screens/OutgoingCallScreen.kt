@@ -1,16 +1,15 @@
 package com.callover.android.features.call_overlay_host.screens
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CallEnd
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,10 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.callover.android.R
 import com.callover.android.core.calls.CallState
+import com.callover.android.core.domain.models.CallType
 import com.callover.android.ui.components.CallCircleButton
+import com.callover.android.ui.theme.CalloverMobileTheme
 
 @Composable
 fun OutgoingCallScreen(
@@ -45,19 +48,15 @@ fun OutgoingCallScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(96.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Text(
                     text = contactName.ifBlank { callState.toUserId },
-                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .basicMarquee(),
+                    style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -77,5 +76,22 @@ fun OutgoingCallScreen(
                 onClick = onCancelClick,
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun IncomingCallScreenPreview() {
+    CalloverMobileTheme {
+        OutgoingCallScreen(
+            callState = CallState.Outgoing(
+                toUserId = "user-id",
+                sdp = "sdp",
+                type = CallType.Video,
+                roomId = "room-id"
+            ),
+            contactName = "Someone",
+            onCancelClick = {  },
+        )
     }
 }
